@@ -1,0 +1,26 @@
+# Python
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+venv/
+
+# Machine Learning Models
+*.pkl
+*.joblib
+
+# Data files
+*.csv
+*.json
+
+# Environment files
+.env
+.env.local
+
+# IDE specific
+.vscode/
+.idea/
+
+# Local development
+*.db
+*.sqlite
