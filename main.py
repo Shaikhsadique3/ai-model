@@ -25,8 +25,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Load the trained model
-model = joblib.load('churnaizer_model.pkl')
+# Load the trained model (version 2)
+model = joblib.load('churnaizer_model_v2.pkl')
 
 # Get feature importance from the model
 feature_importances = None

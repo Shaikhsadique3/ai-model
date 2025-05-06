@@ -29,7 +29,8 @@ accuracy = accuracy_score(y_test, y_pred)
 print(f"✅ Model Training Complete!")
 print(f"🎯 Model Accuracy: {accuracy * 100:.2f}%")
 
-# 7. Save the trained model to a file
-joblib.dump(model, 'churnaizer_model.pkl')
+# 7. Save the trained model to a file with versioning
+model_filename = 'churnaizer_model_v2.pkl'
+joblib.dump(model, model_filename)
 
-print("💾 Model saved as: churnaizer_model.pkl")
+print(f"💾 Model saved as: {model_filename}")
