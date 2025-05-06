@@ -6,7 +6,6 @@ __pycache__/
 venv/
 
 # Machine Learning Models
-*.pkl
 *.joblib
 
 # Data files
@@ -16,7 +15,6 @@ venv/
 # Environment files
 .env
 *.json
-*.pkl
 .env.local
 
 # IDE specific
