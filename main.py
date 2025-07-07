@@ -239,9 +239,9 @@ async def predict_churn(
 
         def calculate_understanding_score(probability_val, reasons_val):
             if not reasons_val or "no strong" in reasons_val.lower():
-                return 20
-            base_score = 40 if probability_val >= 0.5 else 20
-            bonus = min(60, len(reasons_val.split(",")) * 10)
+                return 30 if probability_val < 0.5 else 50
+            base_score = 50 if probability_val >= 0.5 else 40
+            bonus = min(50, len(reasons_val.split(",")) * 10)
             return min(100, base_score + bonus)
 
         reasons = identify_churn_reasons(data_dict)
@@ -252,98 +252,13 @@ async def predict_churn(
             "churn_prediction": bool(prediction[0]),
             "churn_probability": float(probability[0]),
             "message": "High risk of churn" if prediction[0] else "Low risk of churn",
-            "reason": reasons,
-            "expected_churn_in_days": expected_days,
-            "understanding_score": score
-        }
-        risk_score = 0
-        risk_factors = []
-        retention_factors = []
-        
-        # Analyze engagement metrics
-        if data.number_of_logins_last30days < 3:
-            risk_score += 3
-            risk_factors.append("Critical: Very low login activity in the last 30 days")
-            days_to_churn = 4  # High risk of immediate churn
-        elif data.number_of_logins_last30days < 10:
-            risk_score += 2
-            risk_factors.append("Warning: Below average login activity")
-            days_to_churn = 7
-        else:
-            retention_factors.append(f"Strong engagement with {data.number_of_logins_last30days} logins in last 30 days")
-
-        # Analyze feature usage
-        if data.active_features_used < 3:
-            risk_score += 2
-            risk_factors.append("Limited product usage - only using basic features")
-            days_to_churn = min(days_to_churn or 14, 10)
-        elif data.active_features_used >= 7:
-            retention_factors.append(f"Power user utilizing {data.active_features_used} product features")
-
-        # Analyze payment status
-        if data.last_payment_status == "Failed":
-            risk_score += 3
-            risk_factors.append("Payment failure - immediate attention needed")
-            days_to_churn = min(days_to_churn or 14, 7)
-        else:
-            retention_factors.append("Consistent payment history")
-
-        # Analyze support tickets
-        if data.support_tickets_opened > 4:
-            risk_score += 2
-            risk_factors.append("High support needs - customer may be struggling")
-            days_to_churn = min(days_to_churn or 14, 10)
-        elif data.support_tickets_opened == 0:
-            retention_factors.append("Self-sufficient user with no support tickets")
-
-        # Adjust days_to_churn based on subscription plan
-        if data.subscription_plan == "Enterprise":
-            days_to_churn = days_to_churn * 1.5 if days_to_churn else None
-            retention_factors.append("Enterprise customer with longer commitment")
-        
-        # Calculate comprehension score (0-100) based on clarity of prediction results
-        comprehension_score = 0
-        comprehension_breakdown = {}
-        
-        # Base score - having a clear prediction adds 20 points
-        comprehension_score += 20
-        comprehension_breakdown["prediction_clarity"] = 20
-        
-        # Risk score clarity - up to 20 points
-        risk_score_points = min(20, risk_score * 5) if risk_score > 0 else 0
-        comprehension_score += risk_score_points
-        comprehension_breakdown["risk_score_clarity"] = risk_score_points
-        
-        # Time-to-churn estimate clarity - up to 30 points
-        time_estimate_points = 30 if days_to_churn is not None else 0
-        comprehension_score += time_estimate_points
-        comprehension_breakdown["time_estimate_clarity"] = time_estimate_points
-        
-        # Risk/retention factors clarity - up to 30 points
-        factors_count = len(risk_factors) if churn_risk == "Churn" else len(retention_factors)
-        factors_points = min(30, factors_count * 10)
-        comprehension_score += factors_points
-        comprehension_breakdown["factors_clarity"] = factors_points
-        
-        # Ensure score is within 0-100 range
-        comprehension_score = max(0, min(100, comprehension_score))
-        
-        response = {
-            "status": "success",
-            "prediction": churn_risk,
-            "risk_score": risk_score,
-            "days_to_churn": round(days_to_churn) if days_to_churn else None,
-            "comprehension_score": comprehension_score,
-            "comprehension_breakdown": comprehension_breakdown
+            "reason": reasons,  # Always show the reason, even if low risk
+            "expected_churn_in_days": expected_days if prediction[0] else None,
+            "understanding_score": score  # Even low-risk users get a score
         }
 
-        if churn_risk == "Churn":
-            response["risk_factors"] = risk_factors
-            response["action_needed"] = "Immediate attention required" if days_to_churn <= 7 else "Monitor closely"
-        else:
-            response["retention_factors"] = retention_factors
-            
-        return response
+
+
     except ValueError as ve:
         return {"status": "error", "message": f"Invalid input data: {str(ve)}"}
     except Exception as e:
