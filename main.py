@@ -200,6 +200,64 @@ async def predict_churn(
         for col in expected_columns:
             if col not in input_data.columns:
                 input_data[col] = 0
+
+        # Reorder columns to match the training data
+        input_data = input_data[expected_columns]
+
+        # Make prediction
+        prediction = model.predict(input_data)
+        probability = model.predict_proba(input_data)[:, 1]
+
+        # Convert CustomerData to a dictionary for easier access
+        data_dict = data.dict()
+
+        # Helper functions for churn analysis
+        def identify_churn_reasons(data_input):
+            reasons = []
+            if data_input.get('number_of_logins_last30days', 999) < 5:
+                reasons.append("Very low login activity")
+            if data_input.get('active_features_used', 999) < 3:
+                reasons.append("Low product usage")
+            if data_input.get('support_tickets_opened', 0) > 2:
+                reasons.append("High support tickets raised")
+            if data_input.get('last_payment_status', '') == 'Failed':
+                reasons.append("Payment failure issue")
+            if data_input.get('subscription_plan', '') == 'Free Trial' and data_input.get('days_since_signup', 999) < 10:
+                reasons.append("Short free trial engagement")
+            
+            return ", ".join(reasons) if reasons else "No strong churn signals detected"
+
+        def estimate_time_to_churn(data_input):
+            if data_input.get('number_of_logins_last30days', 999) < 3:
+                return 7
+            elif data_input.get('active_features_used', 999) < 2:
+                return 10
+            elif data_input.get('support_tickets_opened', 0) > 3:
+                return 5
+            else:
+                return None  # Low risk user
+
+        def calculate_understanding_score(probability_val, reasons_val):
+            if not reasons_val or "no strong" in reasons_val.lower():
+                return 20
+            base_score = 40 if probability_val >= 0.5 else 20
+            bonus = min(60, len(reasons_val.split(",")) * 10)
+            return min(100, base_score + bonus)
+
+        reasons = identify_churn_reasons(data_dict)
+        expected_days = estimate_time_to_churn(data_dict)
+        score = calculate_understanding_score(probability[0], reasons)
+
+        return {
+            "churn_prediction": bool(prediction[0]),
+            "churn_probability": float(probability[0]),
+            "message": "High risk of churn" if prediction[0] else "Low risk of churn",
+            "reason": reasons if prediction[0] else "Low churn risk behavior",
+            "expected_churn_in_days": expected_days if prediction[0] else None,
+            "understanding_score": score
+        }
+            if col not in input_data.columns:
+                input_data[col] = 0
         
         # Reorder columns to match training data
         input_data = input_data[expected_columns]
