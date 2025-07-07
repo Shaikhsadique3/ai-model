@@ -145,13 +145,17 @@ model = joblib.load(model_path)
 
 # 3. Define input data format
 class CustomerData(BaseModel):
+    user_id: str
     days_since_signup: int
-    monthly_revenue: int
+    monthly_revenue: float
+    subscription_plan: str
     number_of_logins_last30days: int
     active_features_used: int
     support_tickets_opened: int
     last_payment_status: str
-    subscription_plan: str
+    email_opens_last30days: int
+    last_login_days_ago: int
+    billing_issue_count: int
 
 # API endpoint for churn prediction
 @app.post("/api/v1/predict", 
@@ -171,6 +175,7 @@ async def predict_churn(
 ):
     # Check rate limit
     check_rate_limit(api_key)
+
     try:
         # Validate input ranges
         if data.days_since_signup < 0:
