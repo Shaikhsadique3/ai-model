@@ -141,7 +141,12 @@ async def regenerate_api_key():
         }, status_code=500)
 
 # 2. Model load karo
-model = joblib.load('churnaizer_model_v4.pkl')
+import os
+
+model_path = "churnaizer_model_v4.pkl"
+if not os.path.exists(model_path):
+    raise FileNotFoundError(f"❌ Model file missing: {model_path}")
+model = joblib.load(model_path)
 
 # 3. Define input data format
 class CustomerData(BaseModel):
