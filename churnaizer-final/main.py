@@ -26,12 +26,7 @@ app.add_middleware(
 )
 
 # Load the trained model (version 2)
-model = joblib.load('churnaizer_model_v2.pkl')
-
-# Get feature importance from the model
-feature_importances = None
-if hasattr(model, 'feature_importances_'):
-    feature_importances = model.feature_importances_
+model = joblib.load('churnaizer_model_v4.pkl')
 
 # API Key header
 API_KEY_HEADER = APIKeyHeader(name="X-API-Key")
