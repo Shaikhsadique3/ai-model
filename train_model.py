@@ -106,7 +106,7 @@ class ChurnPredictor:
 
     def save_model(self):
         joblib.dump(self.model, "churnaizer_model_v5.pkl")
-            print(f"\n📦 Model saved as churnaizer_model_v5.pkl")
+        print(f"\n📦 Model saved as churnaizer_model_v5.pkl")
 
 if __name__ == "__main__":
     predictor = ChurnPredictor()

@@ -4,6 +4,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.security.api_key import APIKeyHeader
 from fastapi.middleware.cors import CORSMiddleware
+from auth import verify_api_key
 from pydantic import BaseModel
 import joblib
 import pandas as pd
@@ -17,7 +18,7 @@ from pathlib import Path
 
 # API Key configuration
 KEYS_FILE = 'api_keys.json'
-api_key_header = APIKeyHeader(name='X-API-Key')
+
 
 # Rate limiting configuration
 REQUEST_LIMIT = 100  # requests per hour
@@ -49,13 +50,7 @@ def generate_api_key():
 # Initialize API keys
 api_keys = load_api_keys()
 
-def check_api_key(api_key: str = Depends(api_key_header)):
-    if not any(k['key'] == api_key for k in api_keys['keys']):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid API key"
-        )
-    return api_key
+
 
 def check_rate_limit(api_key: str):
     current_time = time.time()
@@ -172,7 +167,7 @@ class CustomerData(BaseModel):
 )
 async def predict_churn(
     data: CustomerData,
-    api_key: str = Depends(check_api_key)
+    api_key: str = Depends(verify_api_key)
 ):
     # Check rate limit
     check_rate_limit(api_key)
