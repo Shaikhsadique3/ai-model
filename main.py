@@ -252,8 +252,8 @@ async def predict_churn(
             "churn_prediction": bool(prediction[0]),
             "churn_probability": float(probability[0]),
             "message": "High risk of churn" if prediction[0] else "Low risk of churn",
-            "reason": reasons if prediction[0] else "Low churn risk behavior",
-            "expected_churn_in_days": expected_days if prediction[0] else None,
+            "reason": reasons,
+            "expected_churn_in_days": expected_days,
             "understanding_score": score
         }
         risk_score = 0
