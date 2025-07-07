@@ -256,18 +256,6 @@ async def predict_churn(
             "expected_churn_in_days": expected_days if prediction[0] else None,
             "understanding_score": score
         }
-            if col not in input_data.columns:
-                input_data[col] = 0
-        
-        # Reorder columns to match training data
-        input_data = input_data[expected_columns]
-        
-        # Make prediction
-        prediction = model.predict(input_data)
-        churn_risk = "Churn" if prediction[0] == 1 else "Not Churn"
-        
-        # Calculate time-to-churn estimate based on risk factors
-        days_to_churn = None
         risk_score = 0
         risk_factors = []
         retention_factors = []
