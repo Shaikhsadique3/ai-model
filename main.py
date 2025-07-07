@@ -138,7 +138,7 @@ async def regenerate_api_key():
 # 2. Model load karo
 import os
 
-model_path = "churnaizer_model_v4.pkl"
+model_path = "churnaizer_model_v5.pkl"
 if not os.path.exists(model_path):
     raise FileNotFoundError(f"❌ Model file missing: {model_path}")
 model = joblib.load(model_path)
