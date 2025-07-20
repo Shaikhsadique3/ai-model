@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: churnaizer-api
+    env: python
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: python churnaizer/main.py
+    healthCheckPath: /
+    ports:
+      - 5000
