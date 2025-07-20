@@ -1,0 +1,32 @@
+
+Model Evaluation Report
+-----------------------
+
+Accuracy: 0.9625
+
+Classification Report:
+              precision    recall  f1-score   support
+
+           0       0.96      0.96      0.96       347
+           1       0.96      0.96      0.96       347
+
+    accuracy                           0.96       694
+   macro avg       0.96      0.96      0.96       694
+weighted avg       0.96      0.96      0.96       694
+
+
+Confusion Matrix:
+[[334  13]
+ [ 13 334]]
+
+ROC-AUC Score: 0.9900
+
+Top 5 Most Important Features:
+subscription_plan_Free Trial    0.200867
+subscription_plan_Pro           0.163677
+subscription_plan_Basic         0.100372
+support_tickets_opened          0.068466
+monthly_revenue                 0.065161
+dtype: float32
+
+Warning: Potential sign of overfitting (Accuracy is very high).
