@@ -1,0 +1,16 @@
+- type: web
+    name: churnaizer-api
+    env: python
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: gunicorn main:app --chdir churnaizer --bind 0.0.0.0:5000
+    healthCheckPath: /predict
+    ports:
+      - 5000 
+      services:
+  - type: web
+    name: churnaizer-api
+    env: python
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: gunicorn main:app --chdir churnaizer --bind 0.0.0.0:5000
+    healthCheckPath: /predict
+    autoDeploy: true
