@@ -5,3 +5,4 @@ xgboost
 imblearn
 pytest
 Flask
+gunicorn==21.2.0

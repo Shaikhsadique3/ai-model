@@ -3,7 +3,7 @@ services:
     name: churnaizer-api
     env: python
     buildCommand: pip install -r churnaizer/requirements.txt
-    startCommand: python churnaizer/main.py
-    healthCheckPath: /
+    startCommand: gunicorn main:app --chdir churnaizer --bind 0.0.0.0:5000
+    healthCheckPath: /predict
     ports:
       - 5000
