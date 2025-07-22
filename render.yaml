@@ -1,0 +1,8 @@
+services:
+  - type: web
+    name: churnaizer-api
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn churnaizer.main:app --bind 0.0.0.0:5000
+    healthCheckPath: /predict
+    autoDeploy: true
