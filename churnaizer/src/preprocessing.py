@@ -1,11 +1,16 @@
 import numpy as np
+"""Module for data preprocessing in the churn prediction project.
+
+This module provides functions for handling missing values, converting data types,
+performing one-hot encoding, and applying SMOTE for class balancing.
+"""
+
 import pandas as pd
+import numpy as np
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.impute import SimpleImputer
 from imblearn.over_sampling import SMOTE
 import logging
-
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def preprocess_data(df: pd.DataFrame, categorical_features: list, target_column: str) -> tuple[pd.DataFrame, pd.Series, OneHotEncoder]:
     """

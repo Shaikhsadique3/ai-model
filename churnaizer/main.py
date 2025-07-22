@@ -1,4 +1,10 @@
 import logging
+"""Flask application for churn prediction.
+
+This module sets up a Flask API to serve churn predictions. It loads a pre-trained
+model and preprocessor, and provides an endpoint for making predictions.
+"""
+
 import os
 import logging
 import pickle
@@ -19,6 +25,11 @@ model = None
 preprocessor = None
 
 def load_model_and_preprocessor():
+    """Loads the pre-trained churn prediction model and preprocessor.
+
+    The model and preprocessor are loaded from the 'models' directory.
+    Logs an error if the files are not found.
+    """
     global model, preprocessor
     model_path = os.path.join(os.path.dirname(__file__), 'models', 'churnaizer_saas_model.pkl')
     preprocessor_path = os.path.join(os.path.dirname(__file__), 'models', 'one_hot_encoder.pkl')
@@ -36,6 +47,12 @@ def load_model_and_preprocessor():
 
 @app.route('/predict', methods=['POST'])
 def predict():
+    """Handles prediction requests.
+
+    Expects a JSON payload containing customer data. Preprocesses the data,
+    makes predictions using the loaded model, and returns the predictions
+    and probabilities.
+    """
     if model is None or preprocessor is None:
         return jsonify({"error": "Model or preprocessor not loaded. Please train the model first."}), 500
 
@@ -80,4 +97,4 @@ if __name__ == "__main__":
     load_model_and_preprocessor()
 
     # Run the Flask app
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=False, host='0.0.0.0', port=5000)

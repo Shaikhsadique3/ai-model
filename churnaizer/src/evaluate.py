@@ -1,16 +1,17 @@
 import pandas as pd
+"""Module for evaluating the churn prediction model.
+
+This module provides a function to load a trained model and preprocessor,
+preprocess new data, make predictions, and generate an evaluation report.
+"""
+
 import joblib
-from sklearn.metrics import accuracy_score, classification_report, confusion_matrix, roc_auc_score
-import sys
 import os
 import logging
+import pandas as pd
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix, roc_auc_score
 
-# Add the parent directory to the sys.path to allow importing from src
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
-from src.preprocessing import preprocess_data
-
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+from churnaizer.src.preprocessing import preprocess_data
 
 def evaluate_model(
     data_path: str,
@@ -27,7 +28,10 @@ def evaluate_model(
         df = pd.read_csv(data_path)
         logging.info(f"Dataset loaded from {data_path}")
     except FileNotFoundError:
-        logging.error(f"Dataset not found at {data_path}")
+        logging.error(f"Error: Dataset not found at {data_path}")
+        return
+    except Exception as e:
+        logging.error(f"Error loading dataset from {data_path}: {e}")
         return
 
     try:
@@ -86,12 +90,15 @@ ROC-AUC Score: {roc_auc:.4f}
     logging.info(f"Evaluation report saved to {output_report_path}")
 
     # Highlight top 5 most important features (if model supports feature_importances_)
-    if hasattr(model, 'feature_importances_'):
-        feature_importances = pd.Series(model.feature_importances_, index=X_processed.columns)
-        top_features = feature_importances.nlargest(5)
-        logging.info(f"\nTop 5 Most Important Features:\n{top_features}")
-        with open(output_report_path, 'a') as f:
-            f.write(f"\nTop 5 Most Important Features:\n{top_features}\n")
+    if hasattr(model, 'feature_importances_') and X_processed is not None and not X_processed.empty:
+        try:
+            feature_importances = pd.Series(model.feature_importances_, index=X_processed.columns)
+            top_features = feature_importances.nlargest(5)
+            logging.info(f"\nTop 5 Most Important Features:\n{top_features}")
+            with open(output_report_path, 'a') as f:
+                f.write(f"\nTop 5 Most Important Features:\n{top_features}\n")
+        except Exception as e:
+            logging.warning(f"Could not determine feature importances: {e}")
 
     # Warning signs of overfitting or underfitting (basic check)
     # This is a simplified check; more robust analysis would involve train/validation metrics

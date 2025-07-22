@@ -1,8 +1,20 @@
 import pandas as pd
+"""Module for generating dummy SaaS churn data."""
+
 import pandas as pd
 import numpy as np
+import logging
+import os
 
-def generate_dummy_data(num_rows=500):
+def generate_dummy_data(num_rows: int = 500) -> pd.DataFrame:
+    """Generates a dummy dataset for SaaS churn prediction.
+
+    Args:
+        num_rows (int): The number of rows (samples) to generate.
+
+    Returns:
+        pd.DataFrame: A DataFrame containing the generated dummy data.
+    """
     np.random.seed(42)
 
     data = {
@@ -29,8 +41,18 @@ def generate_dummy_data(num_rows=500):
     return df
 
 if __name__ == "__main__":
-    df = generate_dummy_data(num_rows=500)
-    file_path = 'c:\\Users\\Sadique\\Desktop\\ai model\\churnaizer\\data\\enhanced_saas_churn_data.csv'
-    df.to_csv(file_path, index=False)
-    print(f"Dummy dataset saved to {file_path}")
-    print(f"Churn class ratio:\n{df['churn'].value_counts(normalize=True)}")
+    # Configure logging for standalone execution
+    log_file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'logs', 'churnaizer.log')
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s', handlers=[
+        logging.FileHandler(log_file_path),
+        logging.StreamHandler()
+    ])
+
+    try:
+        df = generate_dummy_data(num_rows=500)
+        file_path = os.path.join(os.path.dirname(__file__), 'enhanced_saas_churn_data.csv')
+        df.to_csv(file_path, index=False)
+        logging.info(f"Dummy dataset saved to {file_path}")
+        logging.info(f"Churn class ratio:\n{df['churn'].value_counts(normalize=True)}")
+    except Exception as e:
+        logging.error(f"An error occurred during dummy data generation: {e}")

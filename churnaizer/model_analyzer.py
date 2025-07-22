@@ -1,125 +1,161 @@
-import joblib
+"""Module for analyzing a trained churn prediction model.
+
+This module defines the `ModelAnalyzer` class, which loads a model and preprocessor,
+processes data, makes predictions, and generates a model summary report with various metrics.
+"""
+
 import pandas as pd
-import configparser
 import numpy as np
-from sklearn.impute import SimpleImputer
-from sklearn.metrics import classification_report, accuracy_score, confusion_matrix, roc_auc_score
-import json
+import joblib
+import logging
 import os
+import json
+from sklearn.metrics import classification_report, accuracy_score, confusion_matrix, roc_auc_score
 
-# ==== Load model and data ====
-model_path = "churnaizer/models/churnaizer_saas_model.pkl"  # \ud83d\udd02 Adjust path
-data_path = "churnaizer/data/enhanced_saas_churn_data.csv"  # \ud83d\udd02 Adjust path
+from churnaizer.src.preprocessing import preprocess_data
 
-# Load configuration
-config = configparser.ConfigParser()
-config_path = os.path.join(os.path.dirname(__file__), 'config', 'config.ini')
-config.read(config_path)
+class ModelAnalyzer:
+    """A class to analyze a trained churn prediction model."""
 
-categorical_features = config['preprocessing']['categorical_features'].split(',')
-target_column = config['model']['target_column']
+    def __init__(self, model_path, preprocessor_path, config_path):
+        self.model_path = model_path
+        self.preprocessor_path = preprocessor_path
+        self.config_path = config_path
+        self.model = None
+        self.preprocessor = None
+        self.config = self._load_config(config_path)
 
-model = joblib.load(model_path)
-preprocessor_path = os.path.join(os.path.dirname(__file__), 'models', 'one_hot_encoder.pkl')
-preprocessor = joblib.load(preprocessor_path)
-data = pd.read_csv(data_path)
+    def _load_config(self, config_path) -> dict:
+        """Loads configuration from config.json."""
+        try:
+            with open(config_path, 'r') as f:
+                config = json.load(f)
+            logging.info("Configuration loaded successfully.")
+            return config
+        except FileNotFoundError:
+            logging.error(f"Error: config.json not found at {config_path}")
+            raise
+        except json.JSONDecodeError:
+            logging.error(f"Error: Could not decode JSON from {config_path}")
+            raise
+        except Exception as e:
+            logging.error(f"Error loading configuration: {e}")
+            raise
 
-# Replicate preprocessing steps from src/preprocessing.py
-# Convert relevant columns to appropriate types first
-for col in ['total_usage_minutes', 'monthly_avg_bill', 'customer_service_interactions']:
-    if col in data.columns:
-        data[col] = pd.to_numeric(data[col], errors='coerce')
+    def _load_model_and_preprocessor(self):
+        """Loads the trained model and preprocessor."""
+        try:
+            self.model = joblib.load(self.model_path)
+            logging.info(f"Model loaded from {self.model_path}")
+        except FileNotFoundError:
+            logging.error(f"Error: Model not found at {self.model_path}")
+            raise
+        except Exception as e:
+            logging.error(f"Error loading model: {e}")
+            raise
 
-# ==== Detect target variable ====
-# target_col is now loaded from config.ini
+        try:
+            self.preprocessor = joblib.load(self.preprocessor_path)
+            logging.info(f"Preprocessor loaded from {self.preprocessor_path}")
+        except FileNotFoundError:
+            logging.error(f"Error: Preprocessor not found at {self.preprocessor_path}")
+            raise
+        except Exception as e:
+            logging.error(f"Error loading preprocessor: {e}")
+            raise
 
-# ==== Separate features and target ====
-X = data.drop(columns=[target_column])
-y = data[target_column]
+    def _load_data_and_preprocess(self) -> tuple[pd.DataFrame, pd.Series]:
+        """Loads the dataset and preprocesses it using the loaded preprocessor."""
+        try:
+            dataset_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), self.config['dataset_path'])
+            df = pd.read_csv(dataset_path)
+            logging.info("Data loaded successfully.")
 
-# Identify numerical and categorical columns in X
-numerical_cols = X.select_dtypes(include=np.number).columns.tolist()
-all_categorical_cols = [col for col in X.columns if col in categorical_features or X[col].dtype == 'object']
-all_categorical_cols = list(dict.fromkeys(all_categorical_cols))
+            X_processed, y, _ = preprocess_data(df.copy(), self.config['categorical_features'], self.config['target_column'])
+            logging.info("Data preprocessed successfully.")
+            return X_processed, y
+        except FileNotFoundError:
+            logging.error(f"Error: Dataset not found at {dataset_path}")
+            raise
+        except Exception as e:
+            logging.error(f"Error loading or preprocessing data: {e}")
+            raise
 
-# Handle missing values in numerical features
-for col in numerical_cols:
-    if X[col].isnull().any():
-        imputer = SimpleImputer(strategy='mean')
-        X[col] = imputer.fit_transform(X[[col]])
+    def run_analysis(self):
+        """Runs the complete model analysis pipeline."""
+        logging.info("Starting model analysis...")
+        try:
+            self._load_model_and_preprocessor()
+            X_processed, y = self._load_data_and_preprocess()
 
-# Handle missing values in categorical features and convert to category dtype
-for col in all_categorical_cols:
-    if col in X.columns:
-        X[col] = X[col].fillna('Missing').astype('category')
+            # ==== Model predictions ====
+            y_pred = self.model.predict(X_processed)
+            if hasattr(self.model, "predict_proba"):
+                y_proba = self.model.predict_proba(X_processed)[:, 1]
+            else:
+                y_proba = None
 
-# Only encode columns that are actually categorical and present in X
-cols_to_encode = [col for col in all_categorical_cols if col in X.columns]
+            # Get hyperparameters safely
+            model_hyperparameters = "Unavailable"
+            try:
+                if hasattr(self.model, 'get_params') and callable(self.model.get_params):
+                    model_hyperparameters = self.model.get_params()
+            except AttributeError:
+                model_hyperparameters = "Unavailable"
+            except Exception as e:
+                model_hyperparameters = f"Error retrieving: {e}"
 
-X_categorical_encoded = pd.DataFrame()
-if cols_to_encode:
-    X_categorical_encoded = pd.DataFrame(preprocessor.transform(X[cols_to_encode]),
-                                         columns=preprocessor.get_feature_names_out(cols_to_encode),
-                                         index=X.index)
+            # ==== Generate report ====
+            report = {
+                "Model Type": str(type(self.model)),
+                "Target Variable": self.config['target_column'],
+                "Input Features Used": list(X_processed.columns),
+                "Model Hyperparameters": model_hyperparameters,
+                "Accuracy": accuracy_score(y, y_pred),
+                "F1 Score": classification_report(y, y_pred, output_dict=True)["weighted avg"]["f1-score"],
+                "Confusion Matrix": confusion_matrix(y, y_pred).tolist(),
+                "ROC-AUC Score": roc_auc_score(y, y_proba) if y_proba is not None else "Not available",
+                "Feature Importances": dict(zip(X_processed.columns, self.model.feature_importances_)) if hasattr(self.model, "feature_importances_") else "N/A",
+            }
 
-# Drop original categorical columns from X before concatenating
-X_numerical = X.drop(columns=cols_to_encode, errors='ignore')
+            # ==== Check for Overfitting ====
+            if report["Accuracy"] > 0.95:
+                report["Overfitting Risk"] = "Accuracy is very high. Consider cross-validation."
+            else:
+                report["Overfitting Risk"] = "Looks reasonable."
 
-X_processed = pd.concat([X_numerical, X_categorical_encoded], axis=1)
+            logging.info("\nModel Summary Report:\n")
+            logging.info(json.dumps(report, indent=2))
+            logging.info("Model analysis finished.")
+        except Exception as e:
+            logging.critical(f"An error occurred during model analysis: {e}")
 
-# ==== Model predictions ====
-y_pred = model.predict(X_processed)
-if hasattr(model, "predict_proba"):
-    y_proba = model.predict_proba(X_processed)[:, 1]
-else:
-    y_proba = None
+if __name__ == "__main__":
+    try:
+        # Define paths and parameters
+        CONFIG_PATH = 'c:\\Users\\Sadique\\Desktop\\ai model\\churnaizer\\config\\config.json'
+        
+        # Load config to get model and preprocessor paths
+        with open(CONFIG_PATH, 'r') as f:
+            config_data = json.load(f)
 
-# Get hyperparameters safely
-model_hyperparameters = "Unavailable"
-try:
-    if hasattr(model, 'get_params') and callable(model.get_params):
-        model_hyperparameters = model.get_params()
-except AttributeError:
-    model_hyperparameters = "Unavailable"
-except Exception as e:
-    model_hyperparameters = f"Error retrieving: {e}"
+        MODEL_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), config_data['model_path'])
+        PREPROCESSOR_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), config_data['preprocessor_path'])
 
-# ==== Generate report ====
-report = {
-    "\ud83e\udde0 Model Type": str(type(model)),
-    "\ud83c\udfaf Target Variable": target_column,
-    "\ud83d\udcca Input Features Used": list(X.columns),
-    "\ud83d\uddd1\ufe0f Ignored/Dropped Features": list(set(data.columns) - set(X.columns) - {target_column}),
-    "\u2699\ufe0f Model Hyperparameters": model_hyperparameters,
-    "\ud83d\udcc8 Accuracy": accuracy_score(y, y_pred),
-     "\ud83d\udcc9 F1 Score": classification_report(y, y_pred, output_dict=True)["weighted avg"]["f1-score"],
-     "\ud83d\udcca Confusion Matrix": confusion_matrix(y, y_pred).tolist(),
-     "\ud83d\udcc9 ROC-AUC Score": roc_auc_score(y, y_proba) if y_proba is not None else "Not available",
-     "\u2b50 Feature Importances": dict(zip(X.columns, model.feature_importances_)) if hasattr(model, "feature_importances_") else "N/A",
- }
+        analyzer = ModelAnalyzer(MODEL_PATH, PREPROCESSOR_PATH, CONFIG_PATH)
+        analyzer.run_analysis()
+    except Exception as e:
+        logging.critical(f"An error occurred in the main execution block: {e}")
 
-# ==== Check for Overfitting ====
-if report["\ud83d\udcc8 Accuracy"] > 0.95:
-    report["\u26a0\ufe0f Overfitting Risk"] = "\u26a0\ufe0f Accuracy is very high. Consider cross-validation."
-else:
-    report["\u26a0\ufe0f Overfitting Risk"] = "\u2705 Looks reasonable."
-
-# ==== Output JSON summary ====
-print("\nModel Summary Report:\n")
-def convert_numpy_types(obj):
-    if isinstance(obj, (np.float32, np.float64)):
-        return float(obj)
-    elif isinstance(obj, np.integer):
-        return int(obj)
-    elif isinstance(obj, dict):
-        return {k: convert_numpy_types(v) for k, v in obj.items()}
-    elif isinstance(obj, list):
-        return [convert_numpy_types(elem) for elem in obj]
+    # ==== Check for Overfitting ====
+    if report["\ud83d\udcc8 Accuracy"] > 0.95:
+        report["\u26a0\ufe0f Overfitting Risk"] = "\u26a0\ufe0f Accuracy is very high. Consider cross-validation."
     else:
-        return obj
+        report["\u26a0\ufe0f Overfitting Risk"] = "\u2705 Looks reasonable."
 
-report = convert_numpy_types(report)
+    # ==== Output JSON summary ====
+    logging.info("\nModel Summary Report:\n")
+    report = convert_numpy_types(report)
 
-print(json.dumps(report, indent=2))
-# Bonus: Add cross-validation section (optional)
-# You can extend this script to include cross_val_score() from sklearn.model_selection to further validate generalization.
+    logging.info(json.dumps(report, indent=2))
+    logging.info("Model analysis finished.")

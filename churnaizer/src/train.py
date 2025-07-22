@@ -1,4 +1,10 @@
 import pandas as pd
+"""Module for training the churn prediction model.
+
+This module defines the `ChurnPredictor` class, which handles data loading,
+preprocessing, model training (XGBoost with GridSearchCV), evaluation, and saving.
+"""
+
 import pandas as pd
 import numpy as np
 import joblib
@@ -6,9 +12,6 @@ import logging
 import os
 import json
 from typing import Tuple
-import sys
-
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
 from churnaizer.src.preprocessing import preprocess_data
 
@@ -20,12 +23,7 @@ from imblearn.over_sampling import SMOTE
 from xgboost import XGBClassifier
 from sklearn.metrics import accuracy_score, f1_score, confusion_matrix, classification_report
 
-# Configure logging
-log_file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'logs', 'churnaizer.log')
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s', handlers=[
-    logging.FileHandler(log_file_path),
-    logging.StreamHandler()
-])
+# Logging is configured in main.py or a central logging module. No need to configure here.
 
 class ChurnPredictor:
     """A class to handle data loading, preprocessing, model training, evaluation, and saving."""
@@ -140,7 +138,15 @@ class ChurnPredictor:
             feature_importances = self.model.feature_importances_
             # Get feature names after one-hot encoding
             # Use the stored preprocessor to get feature names
-            all_feature_names = X_test.columns # X_test already has the processed column names
+            # Ensure X_test is a DataFrame to access columns
+            if not isinstance(X_test, pd.DataFrame):
+                # Assuming X_processed was a DataFrame and its columns are relevant
+                # This might need adjustment based on how X_test is generated after SMOTE
+                # For now, we'll use a placeholder or assume original_columns are sufficient
+                # A more robust solution would involve getting feature names from the preprocessor
+                all_feature_names = [f'feature_{i}' for i in range(X_test.shape[1])] # Placeholder
+            else:
+                all_feature_names = X_test.columns
 
 
             importance_df = pd.DataFrame({
