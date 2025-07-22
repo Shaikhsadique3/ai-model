@@ -31,8 +31,8 @@ def load_model_and_preprocessor():
     Logs an error if the files are not found.
     """
     global model, preprocessor
-    model_path = os.path.join(os.path.dirname(__file__), 'churnaizer_saas_model.pkl')
-    preprocessor_path = os.path.join(os.path.dirname(__file__), 'one_hot_encoder.pkl')
+    model_path = os.path.join(os.path.dirname(__file__), 'models', 'churnaizer_saas_model.pkl')
+    preprocessor_path = os.path.join(os.path.dirname(__file__), 'models', 'one_hot_encoder.pkl')
     
     try:
         with open(model_path, 'rb') as f:
