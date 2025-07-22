@@ -10,7 +10,7 @@ import logging
 import pickle
 import pandas as pd
 from flask import Flask, request, jsonify
-from src.train import ChurnPredictor
+
 
 # Configure logging
 log_file_path = os.path.join(os.path.dirname(__file__), 'logs', 'churnaizer.log')
@@ -82,19 +82,9 @@ def predict():
         logging.error(f"Error during prediction: {e}")
         return jsonify({"error": str(e)}), 400
 
+# Load the trained model and preprocessor for the API
+load_model_and_preprocessor()
+
 if __name__ == "__main__":
-    # Train the model if it hasn't been trained or if you want to retrain on startup
-    # This part can be removed if you only want to serve the API and train separately
-    try:
-        logging.info("Starting Churnaizer application...")
-        predictor = ChurnPredictor()
-        predictor.run() # This will train and save the model/preprocessor
-        logging.info("Churnaizer application finished successfully.")
-    except Exception as e:
-        logging.critical(f"An unhandled error occurred during Churnaizer training: {e}")
-
-    # Load the trained model and preprocessor for the API
-    load_model_and_preprocessor()
-
     # Run the Flask app
     app.run(debug=False, host='0.0.0.0', port=5000)
