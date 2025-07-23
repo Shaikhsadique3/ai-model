@@ -7,3 +7,1173 @@ services:
     startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /api/v1/predict
     autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/predict
+    autoDeploy: true
+    buildCommand: pip install -r churnaizer/requirements.txt
+    startCommand: uvicorn churnaizer.app:app --host 0
