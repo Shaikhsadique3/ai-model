@@ -54,7 +54,7 @@ pyasn1_modules>=0.4.2
 pydantic==2.10.6
 pydantic_core==2.27.2
 Pygments==2.19.2
-pypaarsing==3.2.3
+pyparsing==3.2.3
 pytest==8.4.1
 python-dateutil==2.9.0.post0
 python-dotenv==1.0.0
