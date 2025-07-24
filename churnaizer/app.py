@@ -1,63 +1,94 @@
-# app.py — Churnaizer Model API (Production-Ready)
+import os
+import logging
+import pandas as pd
+from flask import Flask, request, jsonify
+from pydantic import BaseModel, ValidationError
+from flask_cors import CORS
+import joblib
+import traceback
 
-from fastapi import FastAPI, Request
-from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
-import uvicorn
+# --- Flask App Setup ---
+app = Flask(__name__)
+CORS(app)
 
-# ================================
-# ✅ Your prediction logic here
-# ================================
-def predict_churn(user):
-    # Replace this stub with real model inference
-    usage = user.usage_score
-    tickets = user.support_tickets
+# --- Logging ---
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-    # Fake model logic: higher usage = lower churn
-    score = max(0.01, min(0.99, 1 - (usage / 100)))
-    reason = "Low engagement" if score > 0.7 else "Healthy"
-    insight = "Predicted using usage + support data"
-    understanding = round(1 - score, 2)
+# --- Load Model and Preprocessor ---
+model = None
+preprocessor = None
 
-    return {
-        "churn_probability": round(score, 3),
-        "reason": reason,
-        "message": insight,
-        "understanding_score": understanding
-    }
+def load_model_and_preprocessor():
+    global model, preprocessor
+    try:
+        base_dir = os.path.dirname(__file__)
+        model_path = os.path.join(base_dir, "models", "churnaizer_saas_model.pkl")
+        preprocessor_path = os.path.join(base_dir, "models", "one_hot_encoder.pkl")
 
-# ================================
-# ✅ FastAPI Setup
-# ================================
-app = FastAPI()
+        model = joblib.load(model_path)
+        preprocessor = joblib.load(preprocessor_path)
 
-# Allow any frontend (can restrict later)
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_headers=["*"],
-    allow_methods=["*"],
-)
+        logging.info("✅ Model and preprocessor loaded successfully.")
+    except Exception as e:
+        logging.error("❌ Error loading model or preprocessor: %s", str(e))
+        traceback.print_exc()
 
-# Health check
-@app.get("/")
-def root():
-    return {"status": "Churnaizer API is live"}
-
-# Request schema
+# --- Input Schema ---
 class UserData(BaseModel):
     user_id: str
     plan: str
-    usage_score: float
-    support_tickets: int
     email: str
+    days_since_signup: int
+    monthly_revenue: float
+    number_of_logins_last30days: int
+    active_features_used: int
+    support_tickets_opened: int
+    last_login_days_ago: int
+    email_opens_last30days: int
+    billing_issue_count: int
+    last_payment_status: str
 
-# Prediction route
-@app.post("/api/v1/predict")
-def predict(user: UserData):
-    result = predict_churn(user)
-    return result
+# --- Predict Route ---
+@app.route("/api/v1/predict", methods=["POST"])
+def predict():
+    try:
+        data = request.json
+        logging.info(f"📦 Incoming data: {data}")
 
-# Run app if local
+        # Validate input
+        user_data = UserData(**data)
+        input_df = pd.DataFrame([user_data.dict()])
+
+        # Preprocess and predict
+        X_processed = preprocessor.transform(input_df)
+        churn_prob = float(model.predict_proba(X_processed)[0][1])
+
+        # Simple interpretation (optional)
+        interpretation = "High risk" if churn_prob > 0.7 else "Low risk" if churn_prob < 0.3 else "Medium risk"
+
+        response = {
+            "churn_probability": round(churn_prob, 4),
+            "user_id": user_data.user_id,
+            "message": f"Predicted churn risk is {interpretation}.",
+            "status": "success"
+        }
+
+        logging.info(f"✅ Prediction completed for user {user_data.user_id} -> {churn_prob}")
+        return jsonify(response), 200
+
+    except ValidationError as ve:
+        logging.warning(f"⚠️ Validation error: {ve}")
+        return jsonify({"error": "Invalid input", "details": ve.errors()}), 400
+
+    except Exception as e:
+        logging.error(f"❌ Prediction error: {e}")
+        traceback.print_exc()
+        return jsonify({"error": "Prediction failed", "details": str(e)}), 500
+
+# --- Run ---
 if __name__ == "__main__":
-    uvicorn.run("app:app", host="0.0.0.0", port=8000)
+    load_model_and_preprocessor()
+    app.run(debug=False, host="0.0.0.0", port=5000)
+
+# For gunicorn on Render, load model at startup
+load_model_and_preprocessor()
