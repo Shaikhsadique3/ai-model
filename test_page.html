@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Churn Prediction Test Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #0056b3;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="text"],
+        input[type="number"],
+        input[type="email"],
+        select {
+            width: calc(100% - 22px);
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 18px;
+            width: 100%;
+            margin-top: 20px;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .result-box {
+            margin-top: 30px;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            background-color: #e9ecef;
+            min-height: 100px;
+        }
+        .result-box h2 {
+            margin-top: 0;
+            color: #0056b3;
+        }
+        .error-message {
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Churn Prediction Test Page</h1>
+        <form id="churnForm">
+            <div class="form-group">
+                <label for="user_id">User ID:</label>
+                <input type="text" id="user_id" name="user_id" required>
+            </div>
+            <div class="form-group">
+                <label for="subscription_plan">Plan:</label>
+                <select id="subscription_plan" name="subscription_plan" required>
+                    <option value="Basic">Basic</option>
+                    <option value="Standard">Standard</option>
+                    <option value="Premium">Premium</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="days_since_signup">Days Since Signup:</label>
+                <input type="number" id="days_since_signup" name="days_since_signup" required>
+            </div>
+            <div class="form-group">
+                <label for="monthly_revenue">Monthly Revenue:</label>
+                <input type="number" id="monthly_revenue" name="monthly_revenue" step="0.01" required>
+            </div>
+            <div class="form-group">
+                <label for="number_of_logins_last30days">Logins Last 30 Days:</label>
+                <input type="number" id="number_of_logins_last30days" name="number_of_logins_last30days" required>
+            </div>
+            <div class="form-group">
+                <label for="active_features_used">Active Features Used:</label>
+                <input type="number" id="active_features_used" name="active_features_used" required>
+            </div>
+            <div class="form-group">
+                <label for="support_tickets_opened">Support Tickets Opened:</label>
+                <input type="number" id="support_tickets_opened" name="support_tickets_opened" required>
+            </div>
+            <div class="form-group">
+                <label for="last_login_days_ago">Last Login Days Ago:</label>
+                <input type="number" id="last_login_days_ago" name="last_login_days_ago" required>
+            </div>
+            <div class="form-group">
+                <label for="email_opens_last30days">Email Opens Last 30 Days:</label>
+                <input type="number" id="email_opens_last30days" name="email_opens_last30days" required>
+            </div>
+            <div class="form-group">
+                <label for="billing_issue_count">Billing Issue Count:</label>
+                <input type="number" id="billing_issue_count" name="billing_issue_count" required>
+            </div>
+            <div class="form-group">
+                <label for="last_payment_status">Last Payment Status:</label>
+                <select id="last_payment_status" name="last_payment_status" required>
+                    <option value="Success">Success</option>
+                    <option value="Failed">Failed</option>
+                    <option value="Pending">Pending</option>
+                </select>
+            </div>
+            <button type="submit">Predict Churn</button>
+        </form>
+
+        <div class="result-box">
+            <h2>Prediction Result:</h2>
+            <pre id="predictionResult"></pre>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('churnForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            const form = event.target;
+            const formData = new FormData(form);
+            const data = {};
+            formData.forEach((value, key) => {
+                // Convert numeric values to numbers
+                if (['days_since_signup', 'monthly_revenue', 'number_of_logins_last30days', 'active_features_used',
+                     'support_tickets_opened', 'last_login_days_ago', 'email_opens_last30days', 'billing_issue_count'].includes(key)) {
+                    data[key] = parseFloat(value);
+                 } else if (key === 'subscription_plan') {
+                    data[key] = value; // Ensure subscription_plan is treated as a string
+                 } else {
+                    data[key] = value;
+                }
+            });
+
+            const resultBox = document.getElementById('predictionResult');
+            resultBox.textContent = 'Predicting...';
+            resultBox.classList.remove('error-message');
+
+            try {
+                const response = await fetch('http://127.0.0.1:5000/api/v1/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data),
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    resultBox.textContent = JSON.stringify(result, null, 2);
+                } else {
+                    resultBox.textContent = `Error: ${result.error || 'Unknown error'}\nDetails: ${JSON.stringify(result.details, null, 2)}`;
+                    resultBox.classList.add('error-message');
+                }
+            } catch (error) {
+                resultBox.textContent = `Network Error: ${error.message}. Ensure the Flask app is running on http://127.0.0.1:5000.`;
+                resultBox.classList.add('error-message');
+            }
+        });
+    </script>
+</body>
+</html>

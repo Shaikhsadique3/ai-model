@@ -1,5 +1,5 @@
-import os
 import logging
+import os
 import pandas as pd
 from flask import Flask, request, jsonify
 from pydantic import BaseModel, ValidationError
@@ -36,7 +36,7 @@ def load_model_and_preprocessor():
 # --- Input Schema ---
 class UserData(BaseModel):
     user_id: str
-    plan: str
+    subscription_plan: str
     email: str
     days_since_signup: int
     monthly_revenue: float
@@ -48,7 +48,13 @@ class UserData(BaseModel):
     billing_issue_count: int
     last_payment_status: str
 
-# --- Predict Route ---
+from flask import send_from_directory
+
+# --- Routes ---
+@app.route('/')
+def serve_test_page():
+    return send_from_directory(os.path.abspath(os.path.join(app.root_path, '..')), 'test_page.html')
+
 @app.route("/api/v1/predict", methods=["POST"])
 def predict():
     try:
@@ -57,7 +63,49 @@ def predict():
 
         # Validate input
         user_data = UserData(**data)
-        input_df = pd.DataFrame([user_data.dict()])
+        # Select only the features that the model expects
+        # Assuming 'user_id' and 'email' are not features for the model
+        model_features = [
+            'days_since_signup',
+            'monthly_revenue',
+            'number_of_logins_last30days',
+            'active_features_used',
+            'support_tickets_opened',
+            'last_login_days_ago',
+            'email_opens_last30days',
+            'billing_issue_count',
+            'last_payment_status',
+            'subscription_plan'
+        ]
+        # Separate numerical and categorical features
+        numerical_features = [
+            'days_since_signup',
+            'monthly_revenue',
+            'number_of_logins_last30days',
+            'active_features_used',
+            'support_tickets_opened',
+            'last_login_days_ago',
+            'email_opens_last30days',
+            'billing_issue_count'
+        ]
+        categorical_features = [
+            'subscription_plan',
+            'last_payment_status'
+        ]
+
+        # Create DataFrame from user_data, excluding user_id and email
+        input_data = user_data.dict()
+        del input_data['user_id']
+        del input_data['email']
+        input_df = pd.DataFrame([input_data])
+
+        # Apply preprocessor to categorical features
+        X_categorical = preprocessor.transform(input_df[categorical_features])
+        ohe_feature_names = preprocessor.get_feature_names_out(categorical_features)
+        X_categorical_df = pd.DataFrame(X_categorical, columns=ohe_feature_names, index=input_df.index)
+
+        # Combine numerical and processed categorical features
+        X_processed = pd.concat([input_df[numerical_features], X_categorical_df], axis=1)
 
         # Preprocess and predict
         X_processed = preprocessor.transform(input_df)
