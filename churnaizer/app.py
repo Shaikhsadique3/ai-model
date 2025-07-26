@@ -144,7 +144,11 @@ def predict():
             "message": f"Predicted churn risk is {'High risk' if churn_prob > 0.7 else 'Low risk' if churn_prob < 0.3 else 'Medium risk'}.",
             "status": "success",
             "trigger_email": trigger_email,
-            "recommended_email_tone": recommended_email_tone
+            "shouldTriggerEmail": trigger_email, # For SDK compatibility
+            "recommended_email_tone": recommended_email_tone,
+            "reason": "User behavior analysis", # Placeholder
+            "understanding_score": 0.85, # Placeholder
+            "risk_level": 'High' if churn_prob > 0.7 else 'Low' if churn_prob < 0.3 else 'Medium' # Derived from churn_prob
         }
 
         # Post Prediction Hook: Call Supabase Edge Function if trigger_email is true
