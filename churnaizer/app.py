@@ -108,18 +108,72 @@ def predict():
         X_processed = pd.concat([input_df[numerical_features], X_categorical_df], axis=1)
 
         # Preprocess and predict
-        X_processed = preprocessor.transform(input_df)
+        # The previous X_processed was incorrect as it was transforming the original input_df again.
+        # The correct X_processed is already created by concatenating numerical and one-hot encoded categorical features.
         churn_prob = float(model.predict_proba(X_processed)[0][1])
 
-        # Simple interpretation (optional)
-        interpretation = "High risk" if churn_prob > 0.7 else "Low risk" if churn_prob < 0.3 else "Medium risk"
+        # Determine email trigger and tone
+        trigger_email = False
+        recommended_email_tone = None
+        insights = {
+            "days_since_signup": user_data.days_since_signup,
+            "monthly_revenue": user_data.monthly_revenue,
+            "number_of_logins_last30days": user_data.number_of_logins_last30days,
+            "active_features_used": user_data.active_features_used,
+            "support_tickets_opened": user_data.support_tickets_opened,
+            "last_login_days_ago": user_data.last_login_days_ago,
+            "email_opens_last30days": user_data.email_opens_last30days,
+            "billing_issue_count": user_data.billing_issue_count,
+            "subscription_plan": user_data.subscription_plan,
+            "last_payment_status": user_data.last_payment_status
+        }
+
+        if churn_prob > 0.7:
+            trigger_email = True
+            # Simple logic for email tone based on insights (can be expanded)
+            if insights["support_tickets_opened"] > 2 or insights["billing_issue_count"] > 0:
+                recommended_email_tone = "empathetic"
+            elif insights["active_features_used"] < 3 and insights["number_of_logins_last30days"] < 5:
+                recommended_email_tone = "value-driven"
+            else:
+                recommended_email_tone = "urgency"
 
         response = {
             "churn_probability": round(churn_prob, 4),
             "user_id": user_data.user_id,
-            "message": f"Predicted churn risk is {interpretation}.",
-            "status": "success"
+            "message": f"Predicted churn risk is {'High risk' if churn_prob > 0.7 else 'Low risk' if churn_prob < 0.3 else 'Medium risk'}.",
+            "status": "success",
+            "trigger_email": trigger_email,
+            "recommended_email_tone": recommended_email_tone
         }
+
+        # Post Prediction Hook: Call Supabase Edge Function if trigger_email is true
+        if trigger_email and user_data.email:
+            logging.info(f"📧 Triggering email for user {user_data.user_id} with tone: {recommended_email_tone}")
+            # Placeholder for Supabase Edge Function call
+            # You would typically use a library like 'requests' or 'httpx' here
+            import requests
+            supabase_url = os.getenv("SUPABASE_URL")
+            supabase_anon_key = os.getenv("SUPABASE_ANON_KEY")
+            if supabase_url and supabase_anon_key:
+                try:
+                    headers = {"apikey": supabase_anon_key, "Content-Type": "application/json"}
+                    payload = {
+                        "user_id": user_data.user_id,
+                        "user_email": user_data.email,
+                        "insights": insights,
+                        "recommended_tone": recommended_email_tone
+                    }
+                    response = requests.post(f"{supabase_url}/functions/v1/email/send", json=payload, headers=headers)
+                    response.raise_for_status() # Raise an exception for HTTP errors
+                    logging.info(f"✅ Supabase email send function called successfully for user {user_data.user_id}")
+                except requests.exceptions.RequestException as req_e:
+                    logging.error(f"❌ Error calling Supabase Edge Function: {req_e}")
+            else:
+                logging.warning("⚠️ Supabase URL or Anon Key not set. Skipping email trigger.")
+        elif trigger_email and not user_data.email:
+            logging.warning(f"⚠️ Cannot trigger email for user {user_data.user_id}: email address is missing.")
+
 
         logging.info(f"✅ Prediction completed for user {user_data.user_id} -> {churn_prob}")
         return jsonify(response), 200
