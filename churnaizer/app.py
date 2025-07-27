@@ -9,7 +9,7 @@ import traceback
 
 # --- Flask App Setup ---
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/api/*": {"origins": "*", "allow_headers": ["Content-Type", "X-API-Key", "X-SDK-Version"]}}) # Allow X-SDK-Version header
 
 # --- Logging ---
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
