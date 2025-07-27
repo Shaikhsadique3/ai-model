@@ -6,7 +6,7 @@ import numpy as np
 import logging
 import os
 
-def generate_dummy_data(num_rows: int = 500) -> pd.DataFrame:
+def generate_dummy_data(num_rows: int = 10) -> pd.DataFrame:
     """Generates a dummy dataset for SaaS churn prediction.
 
     Args:
@@ -27,7 +27,9 @@ def generate_dummy_data(num_rows: int = 500) -> pd.DataFrame:
         'email_opens_last30days': np.random.randint(0, 30, num_rows),
         'billing_issue_count': np.random.randint(0, 5, num_rows),
         'last_payment_status': np.random.choice(['Success', 'Failed'], num_rows, p=[0.9, 0.1]),
-        'subscription_plan': np.random.choice(['Free Trial', 'Basic', 'Pro', 'Enterprise'], num_rows, p=[0.2, 0.4, 0.3, 0.1])
+        'subscription_plan': np.random.choice(['Free Trial', 'Basic', 'Pro', 'Enterprise'], num_rows, p=[0.2, 0.4, 0.3, 0.1]),
+        'avg_session_duration': np.random.uniform(10, 1200, num_rows), # in seconds
+        'trial_conversion_flag': np.random.choice([0, 1], num_rows, p=[0.7, 0.3]) # 0 for not converted, 1 for converted
     }
 
     df = pd.DataFrame(data)
