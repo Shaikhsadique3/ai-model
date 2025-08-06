@@ -1,10 +1,11 @@
-2025-08-06 12:02:23,288 - INFO - Dummy dataset saved to c:\\Users\\Sadique\\Desktop\\ai model\\churnaizer\\data\enhanced_saas_churn_data.csv
+<<<<<<< HEAD
+2025-08-06 12:02:23,288 - INFO - Dummy dataset saved to c:\Users\Sadique\Desktop\ai model\churnaizer\data\enhanced_saas_churn_data.csv
 2025-08-06 12:02:23,291 - INFO - Churn class ratio:
 churn
 0    0.694
 1    0.306
 Name: proportion, dtype: float64
-2025-08-06 12:03:33,732 - INFO - Dummy dataset saved to c:\\Users\\Sadique\\Desktop\\ai model\\churnaizer\\data\enhanced_saas_churn_data.csv
+2025-08-06 12:03:33,732 - INFO - Dummy dataset saved to c:\Users\Sadique\Desktop\ai model\churnaizer\data\enhanced_saas_churn_data.csv
 2025-08-06 12:03:33,733 - INFO - Churn class ratio:
 churn
 0    0.686
