@@ -11,3 +11,7 @@ churn
 0    0.686
 1    0.314
 Name: proportion, dtype: float64
+churn
+0    0.686
+1    0.314
+Name: proportion, dtype: float64

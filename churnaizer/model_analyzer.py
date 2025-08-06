@@ -47,7 +47,6 @@ class ModelAnalyzer:
         try:
             config.read(config_path)
             logging.info("Configuration loaded successfully.")
-            # Convert configparser object to a dictionary for easier access
             config_dict = {section: dict(config[section]) for section in config.sections()}
             config_dict['DEFAULT'] = dict(config.defaults())
             return config_dict
@@ -80,11 +79,17 @@ class ModelAnalyzer:
     def _load_data_and_preprocess(self) -> tuple[pd.DataFrame, pd.Series]:
         """Loads the dataset and preprocesses it using the loaded preprocessor."""
         try:
-            dataset_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), self.config['paths']['dataset_path'])
-            df = pd.read_csv(dataset_path)
+            dataset_path = os.path.join(os.path.dirname(__file__), self.config['paths']['dataset_path'])
+            column_names = ['days_since_signup', 'monthly_revenue', 'number_of_logins_last30days', 'active_features_used', 'support_tickets_opened', 'avg_session_duration', 'last_login_days_ago', 'email_opens_last30days', 'billing_issue_count', 'trial_conversion_flag', 'last_payment_status', 'subscription_plan', 'churn']
+            df = pd.read_csv(dataset_path, skiprows=1, names=column_names)
             logging.info("Data loaded successfully.")
 
-            X_processed, y, _ = preprocess_data(df.copy(), self.config['features']['categorical_features'].split(','), self.config['model']['target_column'], preprocessor=self.preprocessor)
+            raw_categorical_features = self.config['features'].get('categorical_features', '')
+            logging.info(f"Raw categorical features from config: {raw_categorical_features}")
+            categorical_features_list = [f.strip() for f in raw_categorical_features.split(',') if f.strip()]
+            print(f"Shape of DataFrame before preprocessing: {df.shape}")
+            print(f"Value counts of '{self.config['model']['target_column']}' before preprocessing:\n{df[self.config['model']['target_column']].value_counts()}")
+            X_processed, y, _ = preprocess_data(df.copy(), categorical_features_list, self.config['model']['target_column'], preprocessor=self.preprocessor)
             logging.info("Data preprocessed successfully.")
             return X_processed, y
         except FileNotFoundError:
@@ -129,8 +134,8 @@ class ModelAnalyzer:
                 "Accuracy": float(accuracy_score(y, y_pred)),
                 "F1 Score": float(classification_report(y, y_pred, output_dict=True)["weighted avg"]["f1-score"]),
                 "Confusion Matrix": confusion_matrix(y, y_pred).tolist(),
-                "ROC-AUC Score": roc_auc_score(y, y_proba) if y_proba is not None else "Not available",
-                "Feature Importances": dict(zip(X_processed.columns, self.model.feature_importances_)) if hasattr(self.model, "feature_importances_") else "N/A",
+                "ROC-AUC Score": float(roc_auc_score(y, y_proba)) if y_proba is not None else "Not available",
+                "Feature Importances": {col: float(imp) for col, imp in zip(X_processed.columns, self.model.feature_importances_)} if hasattr(self.model, "feature_importances_") else "N/A"
             }
 
             # ==== Check for Overfitting ====
@@ -148,15 +153,20 @@ class ModelAnalyzer:
 if __name__ == "__main__":
     try:
         # Define paths and parameters
-        CONFIG_PATH = 'c:\\Users\\Sadique\\Desktop\\ai model\\churnaizer\\config\\config.ini'
+        CONFIG_PATH = os.path.join(os.path.dirname(__file__), 'config', 'config.ini')
         
         # Load config to get model and preprocessor paths
+        config_parser = configparser.ConfigParser()
+        config_parser.read(CONFIG_PATH)
+        config_data = {section: dict(config_parser[section]) for section in config_parser.sections()}
+        config_data['DEFAULT'] = dict(config_parser.defaults())
 
-
+        MODEL_PATH = os.path.join(os.path.dirname(__file__), config_data['paths']['model_path'])
+        PREPROCESSOR_PATH = os.path.join(os.path.dirname(__file__), config_data['paths']['preprocessor_path'])
 
 
         report = None
-        analyzer = ModelAnalyzer(None, None, CONFIG_PATH)
+        analyzer = ModelAnalyzer(MODEL_PATH, PREPROCESSOR_PATH, CONFIG_PATH)
         report = analyzer.run_analysis()
 
         # ==== Check for Overfitting ====
@@ -172,5 +182,7 @@ if __name__ == "__main__":
         logging.info(json.dumps(clean_report, indent=2))
         logging.info("Model analysis finished.")
 
+
+        analyzer.run_analysis()
     except Exception as e:
         logging.critical(f"An error occurred in the main execution block: {e}")
