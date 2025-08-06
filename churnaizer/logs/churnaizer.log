@@ -1,11 +1,27 @@
+rollback-high-accuracy
 2025-08-06 12:02:23,288 - INFO - Dummy dataset saved to c:\\Users\\Sadique\\Desktop\\ai model\\churnaizer\\data\enhanced_saas_churn_data.csv
 2025-08-06 12:02:23,291 - INFO - Churn class ratio:
+
+2025-07-27 12:46:39,326 - INFO - Dummy dataset saved to C:\Users\Sadique\Desktop\ai model\churnaizer\data\enhanced_saas_churn_data.csv
+2025-07-27 12:46:39,329 - INFO - Churn class ratio:
+main
 churn
 0    0.694
 1    0.306
 Name: proportion, dtype: float64
+ rollback-high-accuracy
 2025-08-06 12:03:33,732 - INFO - Dummy dataset saved to c:\\Users\\Sadique\\Desktop\\ai model\\churnaizer\\data\enhanced_saas_churn_data.csv
 2025-08-06 12:03:33,733 - INFO - Churn class ratio:
+
+2025-07-27 12:49:10,009 - INFO - Dummy dataset saved to C:\Users\Sadique\Desktop\ai model\churnaizer\data\enhanced_saas_churn_data.csv
+2025-07-27 12:49:10,010 - INFO - Churn class ratio:
+churn
+0    0.694
+1    0.306
+Name: proportion, dtype: float64
+2025-07-27 12:52:04,577 - INFO - Dummy dataset saved to C:\Users\Sadique\Desktop\ai model\churnaizer\data\enhanced_saas_churn_data.csv
+2025-07-27 12:52:04,579 - INFO - Churn class ratio:
+ main
 churn
 0    0.686
 1    0.314

@@ -13,7 +13,8 @@ import json
 import configparser
 from sklearn.metrics import classification_report, accuracy_score, confusion_matrix, roc_auc_score
 
-from churnaizer.src.preprocessing import preprocess_data
+from src.preprocessing import preprocess_data
+from sklearn.preprocessing import OneHotEncoder # Import OneHotEncoder
 
 # Configure logging to output to console
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s', handlers=[logging.StreamHandler()])
@@ -48,7 +49,14 @@ class ModelAnalyzer:
         try:
             config.read(config_path)
             logging.info("Configuration loaded successfully.")
+ rollback-high-accuracy
             return config
+
+            # Convert configparser object to a dictionary for easier access
+            config_dict = {section: dict(config[section]) for section in config.sections()}
+            config_dict['DEFAULT'] = dict(config.defaults())
+            return config_dict
+ main
         except Exception as e:
             logging.error(f"Error loading configuration: {e}")
             raise
@@ -78,11 +86,25 @@ class ModelAnalyzer:
     def _load_data_and_preprocess(self) -> tuple[pd.DataFrame, pd.Series]:
         """Loads the dataset and preprocesses it using the loaded preprocessor."""
         try:
+ rollback-high-accuracy
             dataset_path = os.path.join(os.path.dirname(__file__), self.config['paths']['dataset_path'])
             df = pd.read_csv(dataset_path)
             logging.info("Data loaded successfully.")
 
             X_processed, y, _ = preprocess_data(df.copy(), self.config['model']['categorical_features'].split(','), self.config['model']['target_column'])
+
+            dataset_path = os.path.join(os.path.dirname(__file__), self.config['data']['dataset_path'])
+            column_names = ['days_since_signup', 'monthly_revenue', 'number_of_logins_last30days', 'active_features_used', 'support_tickets_opened', 'avg_session_duration', 'last_login_days_ago', 'email_opens_last30days', 'billing_issue_count', 'trial_conversion_flag', 'last_payment_status', 'subscription_plan', 'churn']
+            df = pd.read_csv(dataset_path, skiprows=1, names=column_names)
+            logging.info("Data loaded successfully.")
+
+            raw_categorical_features = self.config['DEFAULT'].get('categorical_features', '')
+            logging.info(f"Raw categorical features from config: {raw_categorical_features}")
+            categorical_features_list = [f.strip() for f in raw_categorical_features.split(',') if f.strip()]
+            print(f"Shape of DataFrame before preprocessing: {df.shape}")
+            print(f"Value counts of '{self.config['model']['target_column']}' before preprocessing:\n{df[self.config['model']['target_column']].value_counts()}")
+            X_processed, y, _ = preprocess_data(df.copy(), categorical_features_list, self.config['model']['target_column'], preprocessor=self.preprocessor)
+main
             logging.info("Data preprocessed successfully.")
             return X_processed, y
         except FileNotFoundError:
@@ -128,7 +150,10 @@ class ModelAnalyzer:
                 "F1 Score": float(classification_report(y, y_pred, output_dict=True)["weighted avg"]["f1-score"]),
                 "Confusion Matrix": confusion_matrix(y, y_pred).tolist(),
                 "ROC-AUC Score": float(roc_auc_score(y, y_proba)) if y_proba is not None else "Not available",
+ rollback-high-accuracy
                 "Feature Importances": {k: float(v) for k, v in dict(zip(X_processed.columns, self.model.feature_importances_)).items()} if hasattr(self.model, "feature_importances_") else "N/A",
+                "Feature Importances": {col: float(imp) for col, imp in zip(X_processed.columns, self.model.feature_importances_)} if hasattr(self.model, "feature_importances_") else "N/A",
+ main
             }
 
             # ==== Check for Overfitting ====
@@ -146,6 +171,7 @@ class ModelAnalyzer:
 if __name__ == "__main__":
     try:
         # Define paths and parameters
+ rollback-high-accuracy
         CONFIG_PATH = os.path.join(os.path.dirname(__file__), 'config', 'config.ini')
         
         # Load config to get model and preprocessor paths
@@ -155,8 +181,21 @@ if __name__ == "__main__":
         MODEL_PATH = os.path.join(os.path.dirname(__file__), config_parser['paths']['model_path'])
         PREPROCESSOR_PATH = os.path.join(os.path.dirname(__file__), config_parser['paths']['preprocessor_path'])
 
+        CONFIG_PATH = 'c:\\Users\\Sadique\\Desktop\\ai model\\churnaizer\\config\\config.ini'
+        
+        # Load config to get model and preprocessor paths
+        config = configparser.ConfigParser()
+        config.read(CONFIG_PATH)
+        config_data = {section: dict(config[section]) for section in config.sections()}
+
+        # Corrected paths relative to the churnaizer directory
+        MODEL_PATH = os.path.join(os.path.dirname(__file__), config_data['model']['model_path'])
+        PREPROCESSOR_PATH = os.path.join(os.path.dirname(__file__), config_data['model']['preprocessor_path'])
+ main
+
         report = None
         analyzer = ModelAnalyzer(MODEL_PATH, PREPROCESSOR_PATH, CONFIG_PATH)
+rollback-high-accuracy
         report = analyzer.run_analysis()
 
         # ==== Check for Overfitting ====
@@ -172,5 +211,8 @@ if __name__ == "__main__":
         logging.info(json.dumps(clean_report, indent=2))
         logging.info("Model analysis finished.")
 
+
+        analyzer.run_analysis()
+main
     except Exception as e:
         logging.critical(f"An error occurred in the main execution block: {e}")
