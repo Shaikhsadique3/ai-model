@@ -26,6 +26,8 @@ def generate_dummy_data(num_rows: int = 500) -> pd.DataFrame:
         'last_login_days_ago': np.random.randint(0, 90, num_rows),
         'email_opens_last30days': np.random.randint(0, 30, num_rows),
         'billing_issue_count': np.random.randint(0, 5, num_rows),
+        'avg_session_duration': np.random.uniform(5, 120, num_rows),
+        'trial_conversion_flag': np.random.choice([0, 1], num_rows, p=[0.7, 0.3]),
         'last_payment_status': np.random.choice(['Success', 'Failed'], num_rows, p=[0.9, 0.1]),
         'subscription_plan': np.random.choice(['Free Trial', 'Basic', 'Pro', 'Enterprise'], num_rows, p=[0.2, 0.4, 0.3, 0.1])
     }

@@ -1,32 +1,97 @@
 
-Model Evaluation Report
------------------------
-
-Accuracy: 0.9625
-
-Classification Report:
-              precision    recall  f1-score   support
-
-           0       0.96      0.96      0.96       347
-           1       0.96      0.96      0.96       347
-
-    accuracy                           0.96       694
-   macro avg       0.96      0.96      0.96       694
-weighted avg       0.96      0.96      0.96       694
-
-
-Confusion Matrix:
-[[334  13]
- [ 13 334]]
-
-ROC-AUC Score: 0.9900
-
-Top 5 Most Important Features:
-subscription_plan_Free Trial    0.200867
-subscription_plan_Pro           0.163677
-subscription_plan_Basic         0.100372
-support_tickets_opened          0.068466
-monthly_revenue                 0.065161
-dtype: float32
-
-Warning: Potential sign of overfitting (Accuracy is very high).
+{
+  "Model Type": "<class 'xgboost.sklearn.XGBClassifier'>",
+  "Target Variable": "churn",
+  "Input Features Used": [
+    "days_since_signup",
+    "monthly_revenue",
+    "number_of_logins_last30days",
+    "active_features_used",
+    "support_tickets_opened",
+    "last_login_days_ago",
+    "email_opens_last30days",
+    "billing_issue_count",
+    "avg_session_duration",
+    "trial_conversion_flag",
+    "last_payment_status_Failed",
+    "last_payment_status_Success",
+    "subscription_plan_Basic",
+    "subscription_plan_Enterprise",
+    "subscription_plan_Free Trial",
+    "subscription_plan_Pro"
+  ],
+  "Model Hyperparameters": {
+    "objective": "binary:logistic",
+    "base_score": null,
+    "booster": null,
+    "callbacks": null,
+    "colsample_bylevel": null,
+    "colsample_bynode": null,
+    "colsample_bytree": null,
+    "device": null,
+    "early_stopping_rounds": null,
+    "enable_categorical": false,
+    "eval_metric": "logloss",
+    "feature_types": null,
+    "gamma": null,
+    "grow_policy": null,
+    "importance_type": null,
+    "interaction_constraints": null,
+    "learning_rate": 0.1,
+    "max_bin": null,
+    "max_cat_threshold": null,
+    "max_cat_to_onehot": null,
+    "max_delta_step": null,
+    "max_depth": 5,
+    "max_leaves": null,
+    "min_child_weight": null,
+    "missing": NaN,
+    "monotone_constraints": null,
+    "multi_strategy": null,
+    "n_estimators": 100,
+    "n_jobs": null,
+    "num_parallel_tree": null,
+    "random_state": 42,
+    "reg_alpha": null,
+    "reg_lambda": null,
+    "sampling_method": null,
+    "scale_pos_weight": null,
+    "subsample": null,
+    "tree_method": null,
+    "validate_parameters": null,
+    "verbosity": null,
+    "use_label_encoder": false
+  },
+  "Accuracy": 0.9416909620991254,
+  "F1 Score": 0.9416865011900714,
+  "Confusion Matrix": [
+    [
+      320,
+      23
+    ],
+    [
+      17,
+      326
+    ]
+  ],
+  "ROC-AUC Score": 0.9716869671650418,
+  "Feature Importances": {
+    "days_since_signup": 0.044166918843984604,
+    "monthly_revenue": 0.03960176929831505,
+    "number_of_logins_last30days": 0.041952818632125854,
+    "active_features_used": 0.05821334198117256,
+    "support_tickets_opened": 0.05087669566273689,
+    "last_login_days_ago": 0.045104268938302994,
+    "email_opens_last30days": 0.04418739676475525,
+    "billing_issue_count": 0.04619567468762398,
+    "avg_session_duration": 0.03685988858342171,
+    "trial_conversion_flag": 0.08098014444112778,
+    "last_payment_status_Failed": 0.050459809601306915,
+    "last_payment_status_Success": 0.0,
+    "subscription_plan_Basic": 0.15578843653202057,
+    "subscription_plan_Enterprise": 0.10528959333896637,
+    "subscription_plan_Free Trial": 0.09749645739793777,
+    "subscription_plan_Pro": 0.10282676666975021
+  },
+  "Overfitting Risk": "Looks reasonable."
+}

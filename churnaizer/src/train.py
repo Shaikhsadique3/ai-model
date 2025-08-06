@@ -11,6 +11,7 @@ import joblib
 import logging
 import os
 import json
+import configparser
 from typing import Tuple
 
 from churnaizer.src.preprocessing import preprocess_data
@@ -35,20 +36,17 @@ class ChurnPredictor:
         self.config = self._load_config(config_path)
 
     def _load_config(self, config_path=None) -> dict:
-        """Loads configuration from config.json.
+        """Loads configuration from config.ini.
         Args:
             config_path (str, optional): Path to the config file. Defaults to None.
         """
+        config = configparser.ConfigParser()
         try:
             if config_path is None:
-                config_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'config', 'config.json')
-            with open(config_path, 'r') as f:
-                config = json.load(f)
+                config_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'config', 'config.ini')
+            config.read(config_path)
             logging.info("Configuration loaded successfully.")
             return config
-        except FileNotFoundError:
-            logging.error(f"Error: config.json not found at {config_path}")
-            raise
         except Exception as e:
             logging.error(f"Error loading configuration: {e}")
             raise
@@ -60,7 +58,7 @@ class ChurnPredictor:
             pd.DataFrame: The loaded and cleaned DataFrame.
         """
         try:
-            dataset_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), self.config['dataset_path'])
+            dataset_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), self.config['paths']['dataset_path'])
             df = pd.read_csv(dataset_path)
             logging.info("Dataset loaded successfully.")
 
@@ -162,7 +160,7 @@ class ChurnPredictor:
     def save_model(self):
         """Saves the trained model to the configured path."""
         try:
-            model_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), self.config['model_path'])
+            model_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), self.config['paths']['model_path'])
             joblib.dump(self.model, model_path)
             logging.info(f"Model saved at {model_path}")
         except Exception as e:
@@ -174,7 +172,7 @@ class ChurnPredictor:
         logging.info("Starting churn prediction pipeline...")
         try:
             df = self.load_data()
-            X_processed, y, ohe = preprocess_data(df.copy(), self.config['categorical_features'], self.config['target_column'])
+            X_processed, y, ohe = preprocess_data(df.copy(), self.config['model']['categorical_features'].split(','), self.config['model']['target_column'])
             self.preprocessor = ohe # Store the fitted OHE
             X_test, y_test = self.train_model(X_processed, y)
             self.evaluate_model(X_test, y_test, X_processed.columns) # Pass X_processed.columns for feature names
@@ -187,7 +185,7 @@ class ChurnPredictor:
     def save_preprocessor(self, preprocessor):
         """Saves the fitted preprocessor (OneHotEncoder) to the configured path."""
         try:
-            preprocessor_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), self.config['preprocessor_path'])
+            preprocessor_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), self.config['paths']['preprocessor_path'])
             joblib.dump(preprocessor, preprocessor_path)
             logging.info(f"Preprocessor saved at {preprocessor_path}")
         except Exception as e:

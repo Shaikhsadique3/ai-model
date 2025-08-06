@@ -10,9 +10,13 @@ import joblib
 import logging
 import os
 import json
+import configparser
 from sklearn.metrics import classification_report, accuracy_score, confusion_matrix, roc_auc_score
 
 from churnaizer.src.preprocessing import preprocess_data
+
+# Configure logging to output to console
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s', handlers=[logging.StreamHandler()])
 
 class ModelAnalyzer:
     """A class to analyze a trained churn prediction model."""
@@ -25,19 +29,26 @@ class ModelAnalyzer:
         self.preprocessor = None
         self.config = self._load_config(config_path)
 
+    @staticmethod
+    def convert_numpy_types(obj):
+        if isinstance(obj, np.generic):
+            return obj.item()
+        elif isinstance(obj, np.ndarray):
+            return obj.tolist()
+        elif isinstance(obj, dict):
+            return {k: ModelAnalyzer.convert_numpy_types(v) for k, v in obj.items()}
+        elif isinstance(obj, list):
+            return [ModelAnalyzer.convert_numpy_types(elem) for elem in obj]
+        else:
+            return obj
+
     def _load_config(self, config_path) -> dict:
-        """Loads configuration from config.json."""
+        """Loads configuration from config.ini."""
+        config = configparser.ConfigParser()
         try:
-            with open(config_path, 'r') as f:
-                config = json.load(f)
+            config.read(config_path)
             logging.info("Configuration loaded successfully.")
             return config
-        except FileNotFoundError:
-            logging.error(f"Error: config.json not found at {config_path}")
-            raise
-        except json.JSONDecodeError:
-            logging.error(f"Error: Could not decode JSON from {config_path}")
-            raise
         except Exception as e:
             logging.error(f"Error loading configuration: {e}")
             raise
@@ -67,11 +78,11 @@ class ModelAnalyzer:
     def _load_data_and_preprocess(self) -> tuple[pd.DataFrame, pd.Series]:
         """Loads the dataset and preprocesses it using the loaded preprocessor."""
         try:
-            dataset_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), self.config['dataset_path'])
+            dataset_path = os.path.join(os.path.dirname(__file__), self.config['paths']['dataset_path'])
             df = pd.read_csv(dataset_path)
             logging.info("Data loaded successfully.")
 
-            X_processed, y, _ = preprocess_data(df.copy(), self.config['categorical_features'], self.config['target_column'])
+            X_processed, y, _ = preprocess_data(df.copy(), self.config['model']['categorical_features'].split(','), self.config['model']['target_column'])
             logging.info("Data preprocessed successfully.")
             return X_processed, y
         except FileNotFoundError:
@@ -99,7 +110,9 @@ class ModelAnalyzer:
             model_hyperparameters = "Unavailable"
             try:
                 if hasattr(self.model, 'get_params') and callable(self.model.get_params):
-                    model_hyperparameters = self.model.get_params()
+                    params = self.model.get_params()
+                    # Convert numpy types to standard Python types for JSON serialization
+                    model_hyperparameters = ModelAnalyzer.convert_numpy_types(params)
             except AttributeError:
                 model_hyperparameters = "Unavailable"
             except Exception as e:
@@ -108,14 +121,14 @@ class ModelAnalyzer:
             # ==== Generate report ====
             report = {
                 "Model Type": str(type(self.model)),
-                "Target Variable": self.config['target_column'],
+                "Target Variable": self.config['model']['target_column'],
                 "Input Features Used": list(X_processed.columns),
                 "Model Hyperparameters": model_hyperparameters,
-                "Accuracy": accuracy_score(y, y_pred),
-                "F1 Score": classification_report(y, y_pred, output_dict=True)["weighted avg"]["f1-score"],
+                "Accuracy": float(accuracy_score(y, y_pred)),
+                "F1 Score": float(classification_report(y, y_pred, output_dict=True)["weighted avg"]["f1-score"]),
                 "Confusion Matrix": confusion_matrix(y, y_pred).tolist(),
-                "ROC-AUC Score": roc_auc_score(y, y_proba) if y_proba is not None else "Not available",
-                "Feature Importances": dict(zip(X_processed.columns, self.model.feature_importances_)) if hasattr(self.model, "feature_importances_") else "N/A",
+                "ROC-AUC Score": float(roc_auc_score(y, y_proba)) if y_proba is not None else "Not available",
+                "Feature Importances": {k: float(v) for k, v in dict(zip(X_processed.columns, self.model.feature_importances_)).items()} if hasattr(self.model, "feature_importances_") else "N/A",
             }
 
             # ==== Check for Overfitting ====
@@ -124,38 +137,40 @@ class ModelAnalyzer:
             else:
                 report["Overfitting Risk"] = "Looks reasonable."
 
-            logging.info("\nModel Summary Report:\n")
-            logging.info(json.dumps(report, indent=2))
             logging.info("Model analysis finished.")
+            return report
         except Exception as e:
             logging.critical(f"An error occurred during model analysis: {e}")
+            raise
 
 if __name__ == "__main__":
     try:
         # Define paths and parameters
-        CONFIG_PATH = 'c:\\Users\\Sadique\\Desktop\\ai model\\churnaizer\\config\\config.json'
+        CONFIG_PATH = os.path.join(os.path.dirname(__file__), 'config', 'config.ini')
         
         # Load config to get model and preprocessor paths
-        with open(CONFIG_PATH, 'r') as f:
-            config_data = json.load(f)
+        config_parser = configparser.ConfigParser()
+        config_parser.read(CONFIG_PATH)
 
-        MODEL_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), config_data['model_path'])
-        PREPROCESSOR_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), config_data['preprocessor_path'])
+        MODEL_PATH = os.path.join(os.path.dirname(__file__), config_parser['paths']['model_path'])
+        PREPROCESSOR_PATH = os.path.join(os.path.dirname(__file__), config_parser['paths']['preprocessor_path'])
 
+        report = None
         analyzer = ModelAnalyzer(MODEL_PATH, PREPROCESSOR_PATH, CONFIG_PATH)
-        analyzer.run_analysis()
+        report = analyzer.run_analysis()
+
+        # ==== Check for Overfitting ====
+        if report["Accuracy"] > 0.95:
+            report["Overfitting Risk"] = "Accuracy is very high. Consider cross-validation."
+        else:
+            report["Overfitting Risk"] = "Looks reasonable."
+
+        # ==== Output JSON summary ====
+        logging.info("\nModel Summary Report:\n")
+
+        clean_report = ModelAnalyzer.convert_numpy_types(report)
+        logging.info(json.dumps(clean_report, indent=2))
+        logging.info("Model analysis finished.")
+
     except Exception as e:
         logging.critical(f"An error occurred in the main execution block: {e}")
-
-    # ==== Check for Overfitting ====
-    if report["\ud83d\udcc8 Accuracy"] > 0.95:
-        report["\u26a0\ufe0f Overfitting Risk"] = "\u26a0\ufe0f Accuracy is very high. Consider cross-validation."
-    else:
-        report["\u26a0\ufe0f Overfitting Risk"] = "\u2705 Looks reasonable."
-
-    # ==== Output JSON summary ====
-    logging.info("\nModel Summary Report:\n")
-    report = convert_numpy_types(report)
-
-    logging.info(json.dumps(report, indent=2))
-    logging.info("Model analysis finished.")
