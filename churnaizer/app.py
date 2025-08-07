@@ -140,6 +140,7 @@ def predict():
 
         response = {
             "churn_probability": round(churn_prob, 4),
+            "churn_score": round(churn_prob, 4),
             "user_id": user_data.user_id,
             "message": f"Predicted churn risk is {'High risk' if churn_prob > 0.7 else 'Low risk' if churn_prob < 0.3 else 'Medium risk'}.",
             "status": "success",
@@ -168,8 +169,8 @@ def predict():
                         "insights": insights,
                         "recommended_tone": recommended_email_tone
                     }
-                    response = requests.post(f"{supabase_url}/functions/v1/email/send", json=payload, headers=headers)
-                    response.raise_for_status() # Raise an exception for HTTP errors
+                    supabase_response = requests.post(f"{supabase_url}/functions/v1/email/send", json=payload, headers=headers)
+                    supabase_response.raise_for_status() # Raise an exception for HTTP errors
                     logging.info(f"✅ Supabase email send function called successfully for user {user_data.user_id}")
                 except requests.exceptions.RequestException as req_e:
                     logging.error(f"❌ Error calling Supabase Edge Function: {req_e}")

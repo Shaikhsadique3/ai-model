@@ -45,17 +45,21 @@ window.Churnaizer = {
       clearTimeout(timeout);
 
       // Validate the structure of the AI model's response
-      const requiredFields = ['churn_probability', 'reason', 'message', 'understanding_score'];
+      const requiredFields = ['churn_probability', 'churn_score', 'reason', 'message', 'understanding_score', 'risk_level', 'shouldTriggerEmail', 'recommended_email_tone'];
       for (const field of requiredFields) {
         if (!(field in data)) {
           throw new Error(`AI model response missing required field: ${field}. Full response: ${JSON.stringify(data)}`);
         }
       }
 
-      const churn_score = data.churn_probability;
+      const churn_probability = data.churn_probability;
+      const churn_score = data.churn_score;
       const churn_reason = data.reason;
       const insight = data.message;
       const understanding = data.understanding_score;
+      const risk_level = data.risk_level;
+      const shouldTriggerEmail = data.shouldTriggerEmail;
+      const recommended_tone = data.recommended_email_tone;
 
       // Step 2: Sync this data with Churnaizer backend
        fetch("https://churnaizer.com/api/sync", {
@@ -77,7 +81,7 @@ window.Churnaizer = {
 
       // Step 3: Callback to show in browser
       if (callback) {
-        callback({ churn_score, churn_reason, insight, understanding });
+        callback({ churn_probability, churn_score, churn_reason, insight, understanding, risk_level, shouldTriggerEmail, recommended_tone });
       }
     } catch (error) {
       clearTimeout(timeout);
