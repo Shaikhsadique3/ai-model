@@ -6,6 +6,10 @@ from pydantic import BaseModel, ValidationError
 from flask_cors import CORS
 import joblib
 import traceback
+import logging
+from werkzeug.utils import secure_filename
+
+from churnaizer.src.predict import ChurnPredictorService
 
 # --- Flask App Setup ---
 app = Flask(__name__)
@@ -14,24 +18,24 @@ CORS(app, resources={r"/api/*": {"origins": "*", "allow_headers": ["Content-Type
 # --- Logging ---
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-# --- Load Model and Preprocessor ---
-model = None
-preprocessor = None
+# --- Initialize ChurnPredictorService ---
+churn_service = None
 
-def load_model_and_preprocessor():
-    global model, preprocessor
+def initialize_churn_service():
+    global churn_service
     try:
-        base_dir = os.path.dirname(__file__)
-        model_path = os.path.join(base_dir, "models", "churnaizer_saas_model.pkl")
-        preprocessor_path = os.path.join(base_dir, "models", "one_hot_encoder.pkl")
-
-        model = joblib.load(model_path)
-        preprocessor = joblib.load(preprocessor_path)
-
-        logging.info("✅ Model and preprocessor loaded successfully.")
+        churn_service = ChurnPredictorService()
+        logging.info("✅ ChurnPredictorService initialized successfully.")
     except Exception as e:
-        logging.error("❌ Error loading model or preprocessor: %s", str(e))
+        logging.error("❌ Error initializing ChurnPredictorService: %s", str(e))
         traceback.print_exc()
+
+# --- File Upload Configuration ---
+UPLOAD_FOLDER = 'uploads'
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+ALLOWED_EXTENSIONS = {'csv'}
 
 # --- Input Schema ---
 class UserData(BaseModel):
@@ -55,108 +59,62 @@ from flask import send_from_directory
 def serve_test_page():
     return send_from_directory(os.path.abspath(os.path.join(app.root_path, '..')), 'test_page.html')
 
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
 @app.route("/api/v1/predict", methods=["POST"])
 def predict():
+    if churn_service is None:
+        return jsonify({"error": "Service not initialized"}), 500
     try:
         data = request.json
         logging.info(f"📦 Incoming data: {data}")
 
         # Validate input
         user_data = UserData(**data)
-        # Select only the features that the model expects
-        # Assuming 'user_id' and 'email' are not features for the model
-        model_features = [
-            'days_since_signup',
-            'monthly_revenue',
-            'number_of_logins_last30days',
-            'active_features_used',
-            'support_tickets_opened',
-            'last_login_days_ago',
-            'email_opens_last30days',
-            'billing_issue_count',
-            'last_payment_status',
-            'subscription_plan'
-        ]
-        # Separate numerical and categorical features
-        numerical_features = [
-            'days_since_signup',
-            'monthly_revenue',
-            'number_of_logins_last30days',
-            'active_features_used',
-            'support_tickets_opened',
-            'last_login_days_ago',
-            'email_opens_last30days',
-            'billing_issue_count'
-        ]
-        categorical_features = [
-            'subscription_plan',
-            'last_payment_status'
-        ]
+        
+        # Convert Pydantic model to DataFrame for prediction service
+        input_df = pd.DataFrame([user_data.dict()])
+        
+        # Call the predict_batch method for single prediction
+        # The predict_batch expects 'user_id' column, so ensure it's present
+        if 'user_id' not in input_df.columns:
+            input_df['user_id'] = 'single_user_prediction'
 
-        # Create DataFrame from user_data, excluding user_id and email
-        input_data = user_data.dict()
-        del input_data['user_id']
-        del input_data['email']
-        input_df = pd.DataFrame([input_data])
+        prediction_result_list = churn_service.predict_batch(input_df)
+        
+        # Extract the single prediction result (it's already a dictionary)
+        prediction_result = prediction_result_list[0]
 
-        # Apply preprocessor to categorical features
-        X_categorical = preprocessor.transform(input_df[categorical_features])
-        ohe_feature_names = preprocessor.get_feature_names_out(categorical_features)
-        X_categorical_df = pd.DataFrame(X_categorical, columns=ohe_feature_names, index=input_df.index)
-
-        # Combine numerical and processed categorical features
-        X_processed = pd.concat([input_df[numerical_features], X_categorical_df], axis=1)
-
-        # Preprocess and predict
-        # The previous X_processed was incorrect as it was transforming the original input_df again.
-        # The correct X_processed is already created by concatenating numerical and one-hot encoded categorical features.
-        churn_prob = float(model.predict_proba(X_processed)[0][1])
-
-        # Determine email trigger and tone
+        # Determine email trigger and tone (simplified for now, can be expanded)
         trigger_email = False
         recommended_email_tone = None
-        insights = {
-            "days_since_signup": user_data.days_since_signup,
-            "monthly_revenue": user_data.monthly_revenue,
-            "number_of_logins_last30days": user_data.number_of_logins_last30days,
-            "active_features_used": user_data.active_features_used,
-            "support_tickets_opened": user_data.support_tickets_opened,
-            "last_login_days_ago": user_data.last_login_days_ago,
-            "email_opens_last30days": user_data.email_opens_last30days,
-            "billing_issue_count": user_data.billing_issue_count,
-            "subscription_plan": user_data.subscription_plan,
-            "last_payment_status": user_data.last_payment_status
-        }
-
-        if churn_prob > 0.7:
+        
+        if prediction_result['risk_level'] == 'High':
             trigger_email = True
             # Simple logic for email tone based on insights (can be expanded)
-            if insights["support_tickets_opened"] > 2 or insights["billing_issue_count"] > 0:
-                recommended_email_tone = "empathetic"
-            elif insights["active_features_used"] < 3 and insights["number_of_logins_last30days"] < 5:
-                recommended_email_tone = "value-driven"
-            else:
-                recommended_email_tone = "urgency"
+            # For now, just a placeholder
+            recommended_email_tone = "urgency"
 
         response = {
-            "churn_probability": round(churn_prob, 4),
-            "churn_score": round(churn_prob, 4),
+            "churn_probability": prediction_result['churn_probability'],
+            "churn_score": prediction_result['churn_probability'], # Keeping for SDK compatibility
             "user_id": user_data.user_id,
-            "message": f"Predicted churn risk is {'High risk' if churn_prob > 0.7 else 'Low risk' if churn_prob < 0.3 else 'Medium risk'}.",
+            "message": f"Predicted churn risk is {prediction_result['risk_level']} risk.",
             "status": "success",
             "trigger_email": trigger_email,
             "shouldTriggerEmail": trigger_email, # For SDK compatibility
             "recommended_email_tone": recommended_email_tone,
-            "reason": "User behavior analysis", # Placeholder
+            "reason": ", ".join(prediction_result['top_reasons']), # Use top reasons as reason
             "understanding_score": 0.85, # Placeholder
-            "risk_level": 'High' if churn_prob > 0.7 else 'Low' if churn_prob < 0.3 else 'Medium' # Derived from churn_prob
+            "risk_level": prediction_result['risk_level'],
+            "top_reasons": prediction_result['top_reasons'] # Add top_reasons to response
         }
 
         # Post Prediction Hook: Call Supabase Edge Function if trigger_email is true
         if trigger_email and user_data.email:
             logging.info(f"📧 Triggering email for user {user_data.user_id} with tone: {recommended_email_tone}")
-            # Placeholder for Supabase Edge Function call
-            # You would typically use a library like 'requests' or 'httpx' here
             import requests
             supabase_url = os.getenv("SUPABASE_URL")
             supabase_anon_key = os.getenv("SUPABASE_ANON_KEY")
@@ -166,7 +124,7 @@ def predict():
                     payload = {
                         "user_id": user_data.user_id,
                         "user_email": user_data.email,
-                        "insights": insights,
+                        "insights": user_data.dict(), # Pass all user data as insights
                         "recommended_tone": recommended_email_tone
                     }
                     supabase_response = requests.post(f"{supabase_url}/functions/v1/email/send", json=payload, headers=headers)
@@ -179,8 +137,7 @@ def predict():
         elif trigger_email and not user_data.email:
             logging.warning(f"⚠️ Cannot trigger email for user {user_data.user_id}: email address is missing.")
 
-
-        logging.info(f"✅ Prediction completed for user {user_data.user_id} -> {churn_prob}")
+        logging.info(f"✅ Prediction completed for user {user_data.user_id} -> {prediction_result['churn_probability']}")
         return jsonify(response), 200
 
     except ValidationError as ve:
@@ -192,10 +149,44 @@ def predict():
         traceback.print_exc()
         return jsonify({"error": "Prediction failed", "details": str(e)}), 500
 
+@app.route("/api/v1/predict-csv", methods=["POST"])
+def predict_csv():
+    if churn_service is None:
+        return jsonify({"error": "Service not initialized"}), 500
+
+    if 'file' not in request.files:
+        return jsonify({"error": "No file part in the request"}), 400
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({"error": "No selected file"}), 400
+    if file and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file.save(filepath)
+        logging.info(f"Uploaded file saved to {filepath}")
+
+        try:
+            df = pd.read_csv(filepath)
+            if 'user_id' not in df.columns:
+                return jsonify({"error": "CSV must contain a 'user_id' column."}), 400
+
+            # Perform batch prediction
+            predictions_list = churn_service.predict_batch(df)
+
+            # Clean up the uploaded file
+            os.remove(filepath)
+            logging.info(f"Cleaned up uploaded file {filepath}")
+
+            return jsonify(predictions_list), 200
+
+        except Exception as e:
+            logging.error(f"❌ Batch prediction error: {e}")
+            traceback.print_exc()
+            return jsonify({"error": "Batch prediction failed", "details": str(e)}), 500
+    else:
+        return jsonify({"error": "Allowed file types are csv"}), 400
+
 # --- Run ---
 if __name__ == "__main__":
-    load_model_and_preprocessor()
+    initialize_churn_service()
     app.run(debug=False, host="0.0.0.0", port=5000)
-
-# For gunicorn on Render, load model at startup
-load_model_and_preprocessor()
