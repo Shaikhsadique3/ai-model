@@ -14,15 +14,35 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 class ChurnPredictorService:
     def __init__(self, model_path=None, preprocessor_path=None, config_path=None):
         self.config = self._load_config(config_path)
-        self.model = self._load_model(model_path)
-        self.preprocessor = self._load_preprocessor(preprocessor_path)
         self.numerical_features = [f.strip() for f in self.config['model']['numerical_features'].split(',')]
         self.categorical_features = [f.strip() for f in self.config['model']['categorical_features'].split(',')]
         self.target_column = self.config['model']['target_column']
         self.high_churn_threshold = float(self.config['thresholds']['high'])
         self.medium_churn_threshold = float(self.config['thresholds']['medium'])
+        self.model = self._load_model(model_path)
+        self.preprocessor = self._load_preprocessor(preprocessor_path)
         self._set_feature_names()
-        self.explainer = shap.TreeExplainer(self.model)
+
+        # For LinearExplainer, a background dataset is needed.
+        # In a real application, this would be a small, representative sample of the training data.
+        # For now, we'll create a dummy one with zeros and the correct feature names.
+        if self.feature_names:
+            self.X_train_for_shap = pd.DataFrame(np.zeros((1, len(self.feature_names))), columns=self.feature_names)
+        else:
+            # Fallback if feature_names are not yet set (shouldn't happen if _set_feature_names is called first)
+            # This might happen if the model is not yet loaded or feature names cannot be determined.
+            # In a robust system, this would be handled by ensuring feature_names are always available.
+            # For now, we'll assume a default number of features if feature_names is empty.
+            # This assumes the model is already loaded and has a coef_ attribute to infer feature count.
+            if hasattr(self.model, 'coef_') and self.model.coef_.size > 0:
+                self.X_train_for_shap = pd.DataFrame(np.zeros((1, self.model.coef_.shape[1])))
+            else:
+                # If model is not loaded or has no coef_, create a minimal dummy DataFrame
+                self.X_train_for_shap = pd.DataFrame(np.zeros((1, 1))) # Fallback to a single feature
+
+        # Initialize SHAP explainer
+        # Use LinearExplainer for linear models like LogisticRegression
+        self.explainer = shap.LinearExplainer(self.model, self.X_train_for_shap)
 
     def _load_config(self, config_path=None) -> dict:
         config = configparser.ConfigParser()
@@ -147,32 +167,6 @@ class ChurnPredictorService:
         logging.info("Batch prediction completed.")
         return pd.DataFrame(results)
 
-# Example usage (for testing purposes)
-if __name__ == "__main__":
-    # Create dummy data for testing
-    data = {
-        'user_id': [f'user_{i}' for i in range(1, 11)],
-        'subscription_plan': ['premium', 'basic', 'premium', 'basic', 'premium', 'basic', 'premium', 'basic', 'premium', 'basic'],
-        'days_since_signup': np.random.randint(10, 500, 10),
-        'monthly_revenue': np.random.rand(10) * 100,
-        'number_of_logins_last30days': np.random.randint(0, 30, 10),
-        'active_features_used': np.random.randint(1, 10, 10),
-        'support_tickets_opened': np.random.randint(0, 5, 10),
-        'last_login_days_ago': np.random.randint(0, 60, 10),
-        'email_opens_last30days': np.random.randint(0, 15, 10),
-        'billing_issue_count': np.random.randint(0, 3, 10),
-        'last_payment_status': ['success', 'failed', 'success', 'success', 'failed', 'success', 'success', 'failed', 'success', 'success']
-    }
-    dummy_df = pd.DataFrame(data)
-
-    # Save dummy data to a CSV file
-    dummy_csv_path = "dummy_users.csv"
-    dummy_df.to_csv(dummy_csv_path, index=False)
-    logging.info(f"Dummy CSV created at {dummy_csv_path}")
-
-    # Instantiate the service
-    # Ensure model and preprocessor exist in churnaizer/models/
-
     def _set_feature_names(self):
         # This method should be called after preprocessor is loaded
         # It constructs the full list of feature names that the model expects
@@ -198,7 +192,33 @@ if __name__ == "__main__":
                     ohe_feature_names.append(f"{cat_col}_{cat}")
 
         self.feature_names = numerical_features + ohe_feature_names
-        logging.info(f"Feature names set: {self.feature_names}")
+
+# Example usage (for testing purposes)
+if __name__ == "__main__":
+    # Create dummy data for testing
+    data = {
+        'user_id': [f'user_{i}' for i in range(1, 11)],
+        'subscription_plan': ['premium', 'basic', 'premium', 'basic', 'premium', 'basic', 'premium', 'basic', 'premium', 'basic'],
+        'days_since_signup': np.random.randint(10, 500, 10),
+        'monthly_revenue': np.random.rand(10) * 100,
+        'number_of_logins_last30days': np.random.randint(0, 30, 10),
+        'active_features_used': np.random.randint(1, 10, 10),
+        'support_tickets_opened': np.random.randint(0, 5, 10),
+        'last_login_days_ago': np.random.randint(0, 60, 10),
+        'email_opens_last30days': np.random.randint(0, 15, 10),
+        'billing_issue_count': np.random.randint(0, 3, 10),
+        'last_payment_status': ['success', 'failed', 'success', 'success', 'failed', 'success', 'success', 'failed', 'success', 'success']
+    }
+    dummy_df = pd.DataFrame(data)
+
+    # Save dummy data to a CSV file
+    dummy_csv_path = "dummy_users.csv"
+    dummy_df.to_csv(dummy_csv_path, index=False)
+    logging.info(f"Dummy CSV created at {dummy_csv_path}")
+
+    # Instantiate the service
+    # Ensure model and preprocessor exist in churnaizer/models/
+    logging.info(f"Feature names set: {self.feature_names}")
     # You might need to run churnaizer/src/train.py first to generate them
     try:
         predictor_service = ChurnPredictorService()

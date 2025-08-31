@@ -1,8 +1,8 @@
 import pytest
 import pandas as pd
 import os
+import numpy as np
 from churnaizer.src.predict import ChurnPredictorService
-
 # Define paths for test models and preprocessors (these should be dummy/mocked for unit tests)
 # For a real test, you'd train a small model and save it, or mock the loading.
 TEST_MODEL_PATH = "./test_model.joblib"
@@ -101,6 +101,15 @@ def test_predict_batch_output_format(churn_predictor_service):
 
 def test_predict_batch_risk_levels(churn_predictor_service):
     # Test different churn probabilities to verify risk level assignment
+    
+    # Mock X_train_for_shap for LinearExplainer
+    dummy_X_train = pd.DataFrame([[0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]],
+                                 columns=['days_since_signup', 'monthly_revenue', 'number_of_logins_last30days',
+                                          'active_features_used', 'support_tickets_opened', 'last_login_days_ago',
+                                          'email_opens_last30days', 'billing_issue_count',
+                                          'subscription_plan_basic', 'subscription_plan_premium'])
+    churn_predictor_service.X_train_for_shap = dummy_X_train
+    
     sample_data = {
         'user_id': ['user_high', 'user_medium', 'user_low'],
         'subscription_plan': ['basic', 'premium', 'basic'],
@@ -119,15 +128,36 @@ def test_predict_batch_risk_levels(churn_predictor_service):
 
     # Mock the model's predict_proba to return specific probabilities
     # This is a simplified mock; in a real test, you might mock the entire model
-    class MockModel:
+    # Using a real LogisticRegression instance but overriding predict_proba for specific test values
+    from sklearn.linear_model import LogisticRegression
+
+    class MockLogisticRegression(LogisticRegression):
+        def __init__(self):
+            super().__init__()
+            # Dummy fit to initialize internal attributes like classes_
+            # A minimal fit is required for LogisticRegression to be fully initialized
+            # and for predict_proba to work correctly in some contexts (e.g., SHAP)
+            # Fit with 10 features as per dummy_X_train in this test
+            self.fit(np.array([[0.0] * 10]), np.array([0]))
+            self.classes_ = np.array([0, 1]) # Ensure classes_ is set for predict_proba
+
         def predict_proba(self, X):
             # Return probabilities that map to High, Medium, Low
+            # X will have 3 rows for the 3 users
             return np.array([[0.1, 0.9], [0.5, 0.5], [0.8, 0.2]])
         
         def predict(self, X):
+            # Based on the probabilities above, predict 1, 1, 0
             return np.array([1, 1, 0])
 
-    churn_predictor_service.model = MockModel()
+    churn_predictor_service.model = MockLogisticRegression()
+    
+    # Ensure the mocked model has coef_ and intercept_ attributes
+    # These are typically set after fitting a LogisticRegression model
+    if not hasattr(churn_predictor_service.model, 'coef_'):
+        churn_predictor_service.model.coef_ = np.array([[0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]])
+    if not hasattr(churn_predictor_service.model, 'intercept_'):
+        churn_predictor_service.model.intercept_ = np.array([0.0])
     
     # Mock the explainer to avoid complex SHAP calculations for this test
     class MockExplainer:
