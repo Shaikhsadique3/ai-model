@@ -1,78 +1,43 @@
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel, EmailStr
-from typing import Optional
-from fastapi import FastAPI, File, UploadFile, HTTPException
+from fastapi import FastAPI
+import uvicorn
 import os
 
 app = FastAPI()
 
+from pydantic import BaseModel
+
 class UserData(BaseModel):
     user_id: str
-    plan: str
-    usage_score: float
-    support_tickets: int
-    email: EmailStr
-    # plus any other metrics needed by your model
+    days_since_signup: float
+    monthly_revenue: float
+    number_of_logins_last30days: float
+    active_features_used: float
+    support_tickets_opened: float
+    last_login_days_ago: float
+    email_opens_last30days: float
+    billing_issue_count: float
+    subscription_plan: str
+    last_payment_status: str
+    email: str
 
-# Dummy predict_churn function - to be replaced with real model loading
-def predict_churn(user: UserData) -> dict:
-    # Load API keys or model paths from environment variables
-    ai_model_path = os.getenv("AI_MODEL_PATH")
-    openrouter_api_key = os.getenv("OPENROUTER_API_KEY")
-    resend_api_key = os.getenv("RESEND_API_KEY")
+@app.get("/")
+async def health_check():
+    return {"status": "Churn API running"}
 
-    # In a real scenario, you would load your model here using ai_model_path
-    # and use it to predict churn based on user data.
-    # For now, we return dummy data.
-    print(f"AI_MODEL_PATH: {ai_model_path}")
-    print(f"OPENROUTER_API_KEY: {openrouter_api_key}")
-    print(f"RESEND_API_KEY: {resend_api_key}")
-
+@app.post("/predict")
+async def predict(user_data: UserData):
     # Dummy prediction logic
-    churn_probability = 0.15 # Example value
+    churn_probability = 0.15
     risk_level = "low"
-    message = "User is unlikely to churn based on current data."
-    trigger_email = False
-    recommended_email_tone = "neutral"
-
-    if user.usage_score < 0.3 or user.support_tickets > 5:
-        churn_probability = 0.85
-        risk_level = "high"
-        message = "User is at high risk of churning due to low usage or high support tickets."
-        trigger_email = True
-        recommended_email_tone = "urgent"
-    elif user.usage_score < 0.6 or user.support_tickets > 2:
-        churn_probability = 0.45
-        risk_level = "medium"
-        message = "User shows some signs of potential churn."
-        trigger_email = True
-        recommended_email_tone = "concerned"
+    top_reasons = ["dummy_reason_1", "dummy_reason_2"]
 
     return {
-        "user_id": user.user_id,
+        "user_id": user_data.user_id,
         "churn_probability": churn_probability,
         "risk_level": risk_level,
-        "message": message,
-        "trigger_email": trigger_email,
-        "recommended_email_tone": recommended_email_tone
+        "top_reasons": top_reasons
     }
 
-@app.get("/health")
-async def health_check():
-    return {"status": "ok"}
-
-@app.post("/api/v1/predict")
-async def predict(user_data: UserData):
-    try:
-        prediction_result = predict_churn(user_data)
-        return prediction_result
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-@app.get("/status")
-async def get_status():
-    return {"status": "ok"}
-
-@app.post("/upload")
-async def upload_file(file: UploadFile = File(...)):
-    return {"filename": file.filename, "content_type": file.content_type}
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run("app:app", host="0.0.0.0", port=port, reload=False)

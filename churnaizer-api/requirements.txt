@@ -1,7 +1,2 @@
 fastapi
-uvicorn[standard]
-pydantic[email]
-python-dotenv
-shap
-scikit-learn
-joblib
+uvicorn

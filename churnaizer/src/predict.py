@@ -5,6 +5,7 @@ import logging
 import shap
 import numpy as np
 import configparser
+import pandas as pd
 
 from churnaizer.src.preprocessing import preprocess_data
 
