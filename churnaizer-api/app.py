@@ -1,6 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, EmailStr
 from typing import Optional
+from fastapi import FastAPI, File, UploadFile, HTTPException
 import os
 
 app = FastAPI()
@@ -67,3 +68,11 @@ async def predict(user_data: UserData):
         return prediction_result
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/status")
+async def get_status():
+    return {"status": "ok"}
+
+@app.post("/upload")
+async def upload_file(file: UploadFile = File(...)):
+    return {"filename": file.filename, "content_type": file.content_type}
