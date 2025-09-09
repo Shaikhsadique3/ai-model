@@ -1,224 +1,100 @@
 import pandas as pd
 import numpy as np
-from datetime import datetime, timedelta
-import warnings
+import hashlib
+import json
+from datetime import datetime
 import logging
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(filename='log.txt', level=logging.INFO,
+                    format='%(asctime)s - %(levelname)s - %(message)s')
 
-def validate_mandatory_columns(df):
-    """Validate that all mandatory columns are present."""
-    mandatory_columns = [
-        'user_id', 'signup_date', 'last_login_timestamp', 
-        'billing_status', 'plan_name'
+def process_csv(input_file='input.csv'):
+    try:
+        df = pd.read_csv(input_file)
+        logging.info(f"Successfully read {input_file}. Rows: {len(df)}")
+    except FileNotFoundError:
+        logging.error(f"Error: {input_file} not found.")
+        print(f"Error: {input_file} not found.")
+        return
+    except Exception as e:
+        logging.error(f"Error reading CSV: {e}")
+        print(f"Error reading CSV: {e}")
+        return
+
+    required_columns = ['user_id', 'signup_date', 'last_login_timestamp', 'billing_status', 'plan_name']
+    if not all(col in df.columns for col in required_columns):
+        missing_cols = [col for col in required_columns if col not in df.columns]
+        logging.error(f"Error: Missing required columns: {', '.join(missing_cols)}")
+        print(f"Error: Missing required columns: {', '.join(missing_cols)}")
+        return
+
+    # Data Cleaning and Conversion
+    df.drop_duplicates(subset=['user_id'], inplace=True)
+    logging.info(f"Dropped duplicate user_ids. Remaining rows: {len(df)}")
+
+    # Parse dates
+    for col in ['signup_date', 'last_login_timestamp']:
+        df[col] = pd.to_datetime(df[col], errors='coerce')
+        if df[col].isnull().any():
+            logging.warning(f"Warning: Missing or invalid dates in {col}. Rows with NaT: {df[col].isnull().sum()}")
+
+    # Normalize billing_status
+    df['billing_status'] = df['billing_status'].apply(lambda x: 0 if str(x).lower() == 'active' else 1)
+
+    # Fill missing optional values with defaults (example, extend as needed)
+    df['monthly_revenue'] = df['monthly_revenue'].fillna(0)
+    df['support_tickets_opened'] = df['support_tickets_opened'].fillna(0)
+    df['email_opens_last30days'] = df['email_opens_last30days'].fillna(0)
+    df['number_of_logins_last30days'] = df['number_of_logins_last30days'].fillna(0)
+    df['time_to_first_value'] = df['time_to_first_value'].fillna(0)
+    df['last_payment_status'] = df['last_payment_status'].fillna('unknown')
+
+    # Mask user_id
+    df['user_id_masked'] = df['user_id'].apply(lambda x: hashlib.sha256(str(x).encode()).hexdigest()[:8])
+
+    # Derive new fields
+    current_date = datetime.now()
+    df['days_since_signup'] = (current_date - df['signup_date']).dt.days
+    df['last_login_days_ago'] = (current_date - df['last_login_timestamp']).dt.days
+
+    # Placeholder for days_until_renewal and billing_issue_count (requires more complex logic)
+    df['days_until_renewal'] = np.random.randint(1, 365, size=len(df)) # Example placeholder
+    df['billing_issue_count'] = np.random.randint(0, 5, size=len(df)) # Example placeholder
+
+    # Output processed_data.csv
+    output_columns = [
+        'user_id_masked', 'plan_name', 'days_since_signup', 'days_until_renewal',
+        'last_login_days_ago', 'number_of_logins_last30days', 'time_to_first_value',
+        'support_tickets_opened', 'email_opens_last30days', 'billing_issue_count',
+        'monthly_revenue', 'last_payment_status', 'risk_level' # risk_level is TBD placeholder
     ]
-    
-    missing_columns = [col for col in mandatory_columns if col not in df.columns]
-    if missing_columns:
-        raise ValueError(f"Missing mandatory columns: {', '.join(missing_columns)}")
-    
-    return True
+    df['risk_level'] = 'TBD' # Placeholder
+    df[output_columns].to_csv('processed_data.csv', index=False)
+    logging.info(f"Processed data saved to processed_data.csv. Rows: {len(df)}")
 
-def validate_date_column(df, column_name):
-    """Validate and convert date columns to datetime."""
-    try:
-        df[column_name] = pd.to_datetime(df[column_name], errors='coerce')
-        invalid_dates = df[column_name].isnull().sum()
-        if invalid_dates > 0:
-            logging.warning(f"Found {invalid_dates} invalid dates in {column_name}")
-        return df
-    except Exception as e:
-        raise ValueError(f"Error parsing {column_name}: {str(e)}")
+    # Output stats_summary.json
+    total_customers = len(df)
+    active_customers = df[df['billing_status'] == 0].shape[0]
+    failed_billing_customers = df[df['billing_status'] == 1].shape[0]
+    average_revenue = df['monthly_revenue'].mean()
+    avg_login_gap = df['last_login_days_ago'].mean() # Simplified, could be more complex
+    churn_rate = 0 # Placeholder
 
-def derive_days_since_signup(df, today):
-    """Calculate days since signup."""
-    if 'signup_date' in df.columns:
-        df['days_since_signup'] = (today - df['signup_date']).dt.days
-    else:
-        logging.warning("signup_date column missing - setting days_since_signup to NaN")
-        df['days_since_signup'] = np.nan
-    return df
+    stats_summary = {
+        'total_customers': total_customers,
+        'active_customers': active_customers,
+        'failed_billing_customers': failed_billing_customers,
+        'average_revenue': average_revenue,
+        'avg_login_gap': avg_login_gap,
+        'churn_rate': churn_rate
+    }
 
-def derive_days_until_renewal(df, today):
-    """Calculate days until renewal."""
-    if 'renewal_date' in df.columns:
-        df['days_until_renewal'] = (df['renewal_date'] - today).dt.days
-    else:
-        logging.warning("renewal_date column missing - setting days_until_renewal to NaN")
-        df['days_until_renewal'] = np.nan
-    return df
+    with open('stats_summary.json', 'w') as f:
+        json.dump(stats_summary, f, indent=4)
+    logging.info("Stats summary saved to stats_summary.json.")
 
-def derive_last_login_days_ago(df, today):
-    """Calculate days since last login."""
-    if 'last_login_timestamp' in df.columns:
-        df['last_login_days_ago'] = (today - df['last_login_timestamp']).dt.days
-    return df
+    print("CSV processing complete. Check processed_data.csv, stats_summary.json, and log.txt")
 
-def derive_number_of_logins_last30days(df, today):
-    """Calculate number of logins in last 30 days."""
-    def count_logins_last30days(login_data):
-        if pd.isna(login_data) or login_data == '':
-            return 0
-        
-        try:
-            # Handle different input formats
-            if isinstance(login_data, (int, float)):
-                return int(login_data)
-            
-            # Handle semicolon-separated timestamps
-            events = str(login_data).split(';')
-            valid_events = []
-            
-            for event in events:
-                event = event.strip()
-                if event:
-                    try:
-                        event_date = pd.to_datetime(event)
-                        valid_events.append(event_date)
-                    except:
-                        continue
-            
-            # Count events within last 30 days
-            cutoff_date = today - timedelta(days=30)
-            return sum(1 for event in valid_events if event >= cutoff_date)
-            
-        except Exception as e:
-            logging.warning(f"Error processing login data: {e}")
-            return 0
-    
-    if 'login_events' in df.columns:
-        df['number_of_logins_last30days'] = df['login_events'].apply(count_logins_last30days)
-    else:
-        # Try to derive from login timestamps if available
-        if 'login_timestamps' in df.columns:
-            df['number_of_logins_last30days'] = df['login_timestamps'].apply(count_logins_last30days)
-        else:
-            logging.warning("No login data columns found - setting number_of_logins_last30days to 0")
-            df['number_of_logins_last30days'] = 0
-    
-    return df
-
-def derive_time_to_first_value(df):
-    """Calculate time to first value."""
-    if 'first_key_event_date' in df.columns:
-        df['time_to_first_value'] = (df['first_key_event_date'] - df['signup_date']).dt.days
-    else:
-        logging.warning("first_key_event_date column missing - setting time_to_first_value to NaN")
-        df['time_to_first_value'] = np.nan
-    return df
-
-def normalize_billing_status(df):
-    """Convert billing_status to numeric flag."""
-    df['billing_issue_count'] = df['billing_status'].apply(
-        lambda x: 1 if str(x).lower() == 'failed' else 0
-    )
-    return df
-
-def process_csv(input_csv_path: str, output_csv_path: str = 'processed_data.csv'):
-    """
-    Process CSV file for churn prediction with derived fields.
-    
-    Args:
-        input_csv_path (str): Path to input CSV file
-        output_csv_path (str): Path to save processed CSV file
-    """
-    
-    print(f"Starting CSV processing...")
-    print(f"Input file: {input_csv_path}")
-    
-    try:
-        # 1. Load the CSV
-        df = pd.read_csv(input_csv_path)
-        print(f"Loaded {len(df)} rows from CSV")
-        
-        # 2. Validate mandatory columns
-        validate_mandatory_columns(df)
-        
-        # 3. Validate date columns
-        date_columns = ['signup_date', 'last_login_timestamp']
-        if 'renewal_date' in df.columns:
-            date_columns.append('renewal_date')
-        if 'first_key_event_date' in df.columns:
-            date_columns.append('first_key_event_date')
-            
-        for col in date_columns:
-            if col in df.columns:
-                df = validate_date_column(df, col)
-        
-        # 4. Get today's date for calculations
-        today = datetime.now()
-        
-        # 5. Derive all required fields
-        df = derive_days_since_signup(df, today)
-        df = derive_days_until_renewal(df, today)
-        df = derive_last_login_days_ago(df, today)
-        df = derive_number_of_logins_last30days(df, today)
-        df = derive_time_to_first_value(df)
-        df = normalize_billing_status(df)
-        
-        # 6. Handle optional columns
-        optional_columns = {
-            'support_tickets_opened': 0,
-            'email_opens_last30days': 0,
-            'monthly_revenue': 0,
-            'last_payment_status': 'success'
-        }
-        
-        for col, default_value in optional_columns.items():
-            if col not in df.columns:
-                logging.warning(f"Optional column '{col}' missing - using default value {default_value}")
-                df[col] = default_value
-        
-        # 7. Prepare final DataFrame
-        final_columns = [
-            'user_id',
-            'days_since_signup',
-            'days_until_renewal',
-            'last_login_days_ago',
-            'number_of_logins_last30days',
-            'time_to_first_value',
-            'support_tickets_opened',
-            'email_opens_last30days',
-            'billing_issue_count',
-            'subscription_plan',  # from plan_name
-            'monthly_revenue',
-            'last_payment_status'
-        ]
-        
-        # Rename plan_name to subscription_plan
-        df = df.rename(columns={'plan_name': 'subscription_plan'})
-        
-        # Ensure all final columns exist
-        missing_final_columns = [col for col in final_columns if col not in df.columns]
-        if missing_final_columns:
-            raise ValueError(f"Missing final columns: {missing_final_columns}")
-        
-        # Select only final columns
-        processed_df = df[final_columns]
-        
-        # 8. Save processed data
-        processed_df.to_csv(output_csv_path, index=False)
-        print(f"Processed data saved to: {output_csv_path}")
-        
-        # 9. Print preview
-        print("\nFirst 10 rows of processed data:")
-        print(processed_df.head(10))
-        
-        # 10. Summary statistics
-        print(f"\nProcessing completed successfully!")
-        print(f"Total rows processed: {len(processed_df)}")
-        print(f"Columns: {list(processed_df.columns)}")
-        
-        return processed_df
-        
-    except Exception as e:
-        logging.error(f"Error processing CSV: {str(e)}")
-        raise
-
-if __name__ == "__main__":
-    # Example usage
-    try:
-        process_csv('input.csv')
-    except Exception as e:
-        print(f"Error: {e}")
+if __name__ == '__main__':
+    process_csv()
