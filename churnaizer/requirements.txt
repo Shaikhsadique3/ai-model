@@ -1,0 +1,9 @@
+Flask
+pandas
+scikit-learn
+joblib
+matplotlib
+reportlab
+pydantic
+Flask-Cors
+python-dotenv

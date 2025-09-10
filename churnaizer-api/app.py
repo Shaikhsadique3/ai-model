@@ -5,6 +5,10 @@ import pandas as pd
 from datetime import datetime
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from pydantic import BaseModel
+import sys
+import logging
+from churnaizer.src.predict import ChurnPredictorService
+from churnaizer.src.report_generator import generate_report_pdf
 
 app = FastAPI()
 
@@ -23,6 +27,10 @@ class UserData(BaseModel):
     subscription_plan: str
     last_payment_status: str
     email: str
+
+# Configure logging
+logging.basicConfig(filename='log.txt', level=logging.INFO,
+                    format='%(asctime)s - %(levelname)s - %(message)s')
 
 @app.get("/")
 async def health_check():
@@ -106,6 +114,86 @@ async def upload_csv(file: UploadFile = File(...)):
         return {"message": "CSV uploaded, validated, preprocessed, and saved successfully!", "processed_rows": len(processed_df)}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error processing CSV: {e}")
+
+@app.post("/generate-report")
+async def generate_report(file: UploadFile = File(...)):
+    logging.info(f"Report generation started for file: {file.filename}")
+
+    UPLOADS_DIR = "./uploads"
+    REPORTS_DIR = "./reports"
+    os.makedirs(UPLOADS_DIR, exist_ok=True)
+    os.makedirs(REPORTS_DIR, exist_ok=True)
+
+    if not file.filename.endswith('.csv'):
+        raise HTTPException(status_code=400, detail="Invalid file format. Please upload a CSV file.")
+
+    # Limit file size to 5MB
+    MAX_FILE_SIZE_MB = 5
+    contents = await file.read()
+    if len(contents) > MAX_FILE_SIZE_MB * 1024 * 1024:
+        raise HTTPException(status_code=400, detail=f"File size exceeds {MAX_FILE_SIZE_MB}MB limit.")
+
+    temp_filepath = os.path.join(UPLOADS_DIR, file.filename)
+    with open(temp_filepath, "wb") as buffer:
+        buffer.write(contents)
+
+    try:
+        processed_df, stats_summary, warnings = process_csv(temp_filepath)
+        if warnings:
+            for warning in warnings:
+                logging.warning(f"CSV processing warning: {warning}")
+
+        if processed_df is None:
+            os.remove(temp_filepath)
+            logging.error(f"CSV processing failed for {file.filename}")
+            return jsonify({"status": "error", "message": "CSV processing failed: " + ". ".join(warnings)}), 400
+
+        logging.info(f"Processed {len(processed_df)} rows from {file.filename}")
+
+        # Save processed_data.csv
+        processed_data_filename = f"processed_data_{uuid.uuid4()}.csv"
+        processed_data_filepath = os.path.join(UPLOADS_DIR, processed_data_filename)
+        processed_df.to_csv(processed_data_filepath, index=False)
+
+        # Save stats_summary.json
+        stats_summary_filename = f"stats_summary_{uuid.uuid4()}.json"
+        stats_summary_filepath = os.path.join(UPLOADS_DIR, stats_summary_filename)
+        with open(stats_summary_filepath, 'w') as f:
+            json.dump(stats_summary, f, indent=4)
+
+        # ii. Run churn prediction model
+        predictor = ChurnPredictorService()
+        processed_with_predictions_df = predictor.predict_batch(processed_df)
+        logging.info(f"Churn prediction completed for {file.filename}")
+
+        # Save processed_with_predictions.csv
+        processed_with_predictions_filename = f"processed_with_predictions_{uuid.uuid4()}.csv"
+        processed_with_predictions_filepath = os.path.join(UPLOADS_DIR, processed_with_predictions_filename)
+        processed_with_predictions_df.to_csv(processed_with_predictions_filepath, index=False)
+
+        # iii. Run visualization & report builder
+        report_filename = f"churn_report_{uuid.uuid4()}.pdf"
+        report_filepath = os.path.join(REPORTS_DIR, report_filename)
+        generate_report_pdf(processed_with_predictions_df, stats_summary, report_filepath)
+        logging.info(f"PDF report generated at {report_filepath}")
+
+        # iv. Save final PDF report (already done in generate_report_pdf)
+
+        os.remove(temp_filepath)
+        os.remove(processed_data_filepath)
+        os.remove(stats_summary_filepath)
+        os.remove(processed_with_predictions_filepath)
+        logging.info(f"Report generation completed successfully for file: {file.filename}")
+        return {"status": "success", "report_url": f"/reports/{report_filename}"}
+
+    except Exception as e:
+        if os.path.exists(temp_filepath):
+            os.remove(temp_filepath)
+        logging.error(f"An unexpected error occurred during processing for {file.filename}: {str(e)}")
+        return jsonify({"status": "error", "message": f"An unexpected error occurred during processing: {str(e)}"}), 500
+
+    os.remove(temp_filepath)
+    return {"status": "success", "report_url": "/reports/dummy_report.pdf"}
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))

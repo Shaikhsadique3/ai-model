@@ -3,12 +3,13 @@ import hashlib
 import json
 import logging
 from datetime import datetime, timedelta
+from churnaizer.src.predict import ChurnPredictorService
 
 # Configure logging
 logging.basicConfig(filename='log.txt', level=logging.INFO,
                     format='%(asctime)s - %(levelname)s - %(message)s')
 
-def process_csv(input_file='input.csv'):
+def process_csv(input_file: str): # Removed output_file parameter
     warnings = []
     processed_rows = 0
 
@@ -16,20 +17,26 @@ def process_csv(input_file='input.csv'):
         df = pd.read_csv(input_file)
         logging.info(f"Successfully read {input_file}")
     except FileNotFoundError:
-        logging.error(f"Error: input.csv not found at {input_file}")
-        print(f"Error: input.csv not found at {input_file}")
-        return
+        error_msg = f"Error: input.csv not found at {input_file}"
+        logging.error(error_msg)
+        warnings.append(error_msg)
+        return None, None, warnings # Return None for df and stats_summary
     except Exception as e:
-        logging.error(f"Error reading CSV file: {e}")
-        print(f"Error reading CSV file: {e}")
-        return
+        error_msg = f"Error reading CSV file: {e}"
+        logging.error(error_msg)
+        warnings.append(error_msg)
+        return None, None, warnings # Return None for df and stats_summary
 
     required_columns = ['user_id', 'signup_date', 'last_login_timestamp', 'billing_status', 'plan_name']
     for col in required_columns:
         if col not in df.columns:
-            logging.error(f"Error: Missing required column: {col}")
-            print(f"Error: Missing required column: {col}")
-            return
+            error_msg = f"Error: Missing required column: {col}"
+            logging.error(error_msg)
+            warnings.append(error_msg)
+            return None, None, warnings # Return None for df and stats_summary
+
+    # Keep the original user_id for prediction
+    df['original_user_id'] = df['user_id']
 
     # Data Cleaning and Conversion
     # Parse dates
@@ -75,28 +82,54 @@ def process_csv(input_file='input.csv'):
     # Placeholder for billing_issue_count (requires more detailed billing history)
     df['billing_issue_count'] = 0
 
+    # Rename original_user_id back to user_id for the predictor
+    df.rename(columns={'original_user_id': 'user_id'}, inplace=True)
+
+    # Predict churn
+    try:
+        predictor = ChurnPredictorService()
+        predictions_df = predictor.predict_batch(df)
+        df = pd.merge(df, predictions_df, on='user_id', how='left')
+        # Rename columns to match requirements
+        df.rename(columns={'churn_probability': 'churn_score', 'top_reasons': 'reason'}, inplace=True)
+        df['reason'] = df['reason'].apply(lambda x: ', '.join(x) if isinstance(x, list) else x)
+
+    except Exception as e:
+        logging.error(f"Churn prediction failed: {e}")
+        # Add placeholder columns if prediction fails
+        df['churn_score'] = 0.0
+        df['risk_level'] = 'N/A'
+        df['reason'] = 'Prediction failed'
+
     # Ensure all output columns exist, even if placeholders
     output_columns = [
         'user_id_masked', 'plan_name', 'days_since_signup', 'days_until_renewal',
         'last_login_days_ago', 'number_of_logins_last30days', 'time_to_first_value',
         'support_tickets_opened', 'email_opens_last30days', 'billing_issue_count',
-        'monthly_revenue', 'last_payment_status', 'risk_level'
+        'monthly_revenue', 'last_payment_status', 'churn_score', 'risk_level', 'reason'
     ]
     for col in output_columns:
         if col not in df.columns:
             df[col] = 0 # Default to 0 or appropriate placeholder
 
-    # Output processed_data.csv
-    df[output_columns].to_csv('processed_data.csv', index=False)
-    logging.info("Processed data saved to processed_data.csv")
+    # Removed: df[output_columns].to_csv(output_file, index=False)
+    # Removed: logging.info(f"Processed data saved to {output_file}")
 
     # Generate stats_summary.json
     total_customers = len(df)
-    active_customers = df[df['billing_status'] == 0].shape[0]
-    failed_billing_customers = df[df['billing_status'] == 1].shape[0]
+    active_customers = df[df['billing_status'] == 0].shape[0] if 'billing_status' in df.columns else 0
+    failed_billing_customers = df[df['billing_status'] == 1].shape[0] if 'billing_status' in df.columns else 0
     average_revenue = df['monthly_revenue'].mean() if 'monthly_revenue' in df.columns else 0
     avg_login_gap = df['last_login_days_ago'].mean() if 'last_login_days_ago' in df.columns else 0
-    churn_rate = 0 # Placeholder
+    
+    # Churn distribution
+    if 'risk_level' in df.columns:
+        high_risk_percent = (df['risk_level'] == 'High').sum() / total_customers * 100 if total_customers > 0 else 0
+        medium_risk_percent = (df['risk_level'] == 'Medium').sum() / total_customers * 100 if total_customers > 0 else 0
+        low_risk_percent = (df['risk_level'] == 'Low').sum() / total_customers * 100 if total_customers > 0 else 0
+        average_churn_score = df['churn_score'].mean() if 'churn_score' in df.columns else 0
+    else:
+        high_risk_percent = medium_risk_percent = low_risk_percent = average_churn_score = 0
 
     stats_summary = {
         "total_customers": total_customers,
@@ -104,11 +137,16 @@ def process_csv(input_file='input.csv'):
         "failed_billing_customers": failed_billing_customers,
         "average_revenue": average_revenue,
         "avg_login_gap": avg_login_gap,
-        "churn_rate": churn_rate
+        "churn_distribution": {
+            "high_risk_percent": high_risk_percent,
+            "medium_risk_percent": medium_risk_percent,
+            "low_risk_percent": low_risk_percent,
+            "average_churn_score": average_churn_score
+        }
     }
-    with open('stats_summary.json', 'w') as f:
-        json.dump(stats_summary, f, indent=4)
-    logging.info("Stats summary saved to stats_summary.json")
+    # Removed: with open('stats_summary.json', 'w') as f:
+    # Removed:     json.dump(stats_summary, f, indent=4)
+    # Removed: logging.info("Stats summary saved to stats_summary.json")
 
     # Log processing summary
     processed_rows = len(df)
@@ -118,9 +156,11 @@ def process_csv(input_file='input.csv'):
         for warning in warnings:
             logging.info(warning)
 
-    # Print first 10 rows of processed DataFrame
-    print("\nFirst 10 rows of processed_data.csv:")
-    print(df[output_columns].head(10).to_string())
+    # Removed: Print first 10 rows of processed DataFrame
+    # Removed: print(f"\nFirst 10 rows of {output_file}:")
+    # Removed: print(df[output_columns].head(10).to_string())
 
-if __name__ == "__main__":
-    process_csv()
+    return df[output_columns], stats_summary, warnings # Return the processed DataFrame, stats_summary, and warnings
+
+# Removed: if __name__ == "__main__":
+# Removed:     process_csv()
