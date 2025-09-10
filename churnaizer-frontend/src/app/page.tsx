@@ -80,26 +80,6 @@ export default function Home() {
     }
   };
 
-  const handleGenerateReport = () => {
-    if (selectedFile) {
-      setIsUploading(true);
-      // Simulate upload progress
-      let progress = 0;
-      const interval = setInterval(() => {
-        progress += 10;
-        setUploadProgress(progress);
-        if (progress >= 100) {
-          clearInterval(interval);
-          setIsUploading(false);
-          alert('File uploaded successfully! Report generation started.'); // Confirmation message
-          // Here you would typically send the file to your backend
-        }
-      }, 200);
-    } else {
-      alert('Please select a CSV file to upload.');
-    }
-  };
-
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       {/* Header */}

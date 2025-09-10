@@ -4,18 +4,28 @@ import hashlib
 import json
 from datetime import datetime
 import logging
+import os # Add this import at the top
 
 # Configure logging
 logging.basicConfig(filename='log.txt', level=logging.INFO,
                     format='%(asctime)s - %(levelname)s - %(message)s')
 
-def process_csv(input_file='input.csv'):
+def process_csv(input_file='input.csv', output_file="processed_data.csv"):
+    if not input_file.lower().endswith('.csv'):
+        logging.error(f"Error: Invalid file type. Expected a .csv file, but got {input_file}.")
+        print(f"Error: Invalid file type. Expected a .csv file, but got {input_file}.")
+        return
+
     try:
         df = pd.read_csv(input_file)
         logging.info(f"Successfully read {input_file}. Rows: {len(df)}")
     except FileNotFoundError:
         logging.error(f"Error: {input_file} not found.")
         print(f"Error: {input_file} not found.")
+        return
+    except pd.errors.EmptyDataError: # Add this specific error for empty CSVs
+        logging.error(f"Error: {input_file} is empty.")
+        print(f"Error: {input_file} is empty.")
         return
     except Exception as e:
         logging.error(f"Error reading CSV: {e}")
@@ -70,8 +80,8 @@ def process_csv(input_file='input.csv'):
         'monthly_revenue', 'last_payment_status', 'risk_level' # risk_level is TBD placeholder
     ]
     df['risk_level'] = 'TBD' # Placeholder
-    df[output_columns].to_csv('processed_data.csv', index=False)
-    logging.info(f"Processed data saved to processed_data.csv. Rows: {len(df)}")
+    df[output_columns].to_csv(output_file, index=False) # Use output_file here
+    logging.info(f"Processed data saved to {output_file}. Rows: {len(df)}")
 
     # Output stats_summary.json
     total_customers = len(df)
@@ -94,7 +104,8 @@ def process_csv(input_file='input.csv'):
         json.dump(stats_summary, f, indent=4)
     logging.info("Stats summary saved to stats_summary.json.")
 
-    print("CSV processing complete. Check processed_data.csv, stats_summary.json, and log.txt")
+    print(f"CSV processing complete. Check {output_file}, stats_summary.json, and log.txt")
 
-if __name__ == '__main__':
-    process_csv()
+# Remove the if __name__ == '__main__': block from here
+# if __name__ == '__main__':
+#     process_csv()
