@@ -1,2 +1,8 @@
 fastapi
 uvicorn
+pandas
+scikit-learn
+joblib
+fpdf
+python-multipart
+churnaizer
