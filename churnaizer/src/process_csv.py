@@ -3,7 +3,7 @@ import hashlib
 import json
 import logging
 from datetime import datetime, timedelta
-from churnaizer.src.predict import ChurnPredictorService
+from .predict import ChurnPredictorService
 
 # Configure logging
 logging.basicConfig(filename='log.txt', level=logging.INFO,

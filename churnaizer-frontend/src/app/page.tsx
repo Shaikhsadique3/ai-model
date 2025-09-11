@@ -1,15 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import Link from 'next/link';
-import { useCallback } from 'react';
 
 export default function Home() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isDragActive, setIsDragActive] = useState(false);
   const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
-  const [uploadProgress, setUploadProgress] = useState<number>(0); // New state for upload progress
-  const [isUploading, setIsUploading] = useState<boolean>(false); // New state to indicate uploading status
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
@@ -29,17 +26,7 @@ export default function Home() {
     setIsDragActive(false);
   }, []);
 
-  const onDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragActive(false);
-    
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      validateAndSetFile(e.dataTransfer.files[0]);
-    }
-  }, []);
-
-  const validateAndSetFile = (file: File) => {
+  const validateAndSetFile = useCallback((file: File) => {
     if (!file.name.endsWith('.csv')) {
       alert('Please upload a CSV file only');
       return;
@@ -51,7 +38,17 @@ export default function Home() {
     }
     
     setSelectedFile(file);
-  };
+  }, [MAX_FILE_SIZE]);
+
+  const onDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragActive(false);
+    
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      validateAndSetFile(e.dataTransfer.files[0]);
+    }
+  }, [validateAndSetFile]);
 
   const handleUpload = async () => {
     if (!selectedFile) {
@@ -63,16 +60,18 @@ export default function Home() {
     formData.append('file', selectedFile);
 
     try {
-      const response = await fetch('/api/upload', {
+      const response = await fetch('http://localhost:8000/upload-csv', {
         method: 'POST',
         body: formData,
       });
 
       if (response.ok) {
-        alert('File uploaded successfully!');
+        const result = await response.json();
+        alert(`File uploaded successfully!\nFile Path: ${result.file_path}\nRows: ${result.rows}\nColumns: ${result.columns.join(', ')}`);
         setSelectedFile(null); // Clear selected file after successful upload
       } else {
-        alert('File upload failed.');
+        const errorData = await response.json();
+        alert(`File upload failed: ${errorData.detail || 'Unknown error'}`);
       }
     } catch (error) {
       console.error('Error uploading file:', error);
