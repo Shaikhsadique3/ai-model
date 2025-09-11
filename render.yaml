@@ -1,9 +1,0 @@
-services:
-  - type: web
-    name: churnaizer-api
-    env: python
-    pythonVersion: 3.11.0
-    buildCommand: pip install -r requirements.txt
-    startCommand: uvicorn churnaizer.app:app --host 0.0.0.0 --port $PORT
-    healthCheckPath: /
-    autoDeploy: true

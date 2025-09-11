@@ -1,85 +1,106 @@
-# AI Churn Prediction Model Deployment
+# AI Churn Prediction Model
 
-This repository contains a machine learning model for predicting customer churn, built with FastAPI and scikit-learn.
+This repository contains a machine learning model for predicting customer churn.
 
-## Deployment Instructions for Render.com
-
-### Prerequisites
-
-- A [Render.com](https://render.com) account
-- Git repository with this code
-
-### Deployment Steps
-
-1. **Login to Render.com**
-   - Create an account or log in to your existing account
-
-2. **Create a New Web Service**
-   - Click on "New" and select "Web Service"
-   - Connect your GitHub/GitLab repository or use the public URL
-
-3. **Configure the Web Service**
-   - Name: Choose a name for your service (e.g., "churn-prediction-api")
-   - Environment: Select "Python"
-   - Region: Choose the region closest to your users
-   - Branch: Select your main branch (e.g., "main" or "master")
-   - Build Command: `pip install -r requirements.txt`
-   - Start Command: Leave as is (Render will use the Procfile)
-
-4. **Add Environment Variables (if needed)**
-   - Click on "Environment" tab
-   - Add any secret keys or configuration variables
-
-5. **Deploy the Service**
-   - Click "Create Web Service"
-   - Render will automatically build and deploy your application
-
-6. **Access Your API**
-   - Once deployment is complete, you can access your API at the URL provided by Render
-   - The API documentation will be available at `/docs`
-
-## API Usage
-
-### Authentication
-
-All API requests require an API key that should be included in the header:
+## Project Structure
 
 ```
-X-API-Key: your_api_key
+/model
+   train_model.py
+   predict_model.py
+/processing
+   process_csv.py
+   feature_engineering.py
+   evaluate.py
+   generate_dummy_data.py
+/report
+   report_generator.py
+/tests
+   test_model.py
+requirements.txt
+README.md
 ```
 
-You can get your API key from the admin dashboard at `/admin`.
+## Setup and Installation
 
-### Prediction Endpoint
+1.  **Clone the repository:**
+    ```bash
+    git clone <repository_url>
+    cd ai-churn-prediction-model
+    ```
 
+2.  **Create a virtual environment (recommended):**
+    ```bash
+    python -m venv venv
+    ```
+    -   **On Windows:**
+        ```bash
+        .\venv\Scripts\activate
+        ```
+    -   **On macOS/Linux:**
+        ```bash
+        source venv/bin/activate
+        ```
+
+3.  **Install dependencies:**
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+## Usage
+
+### 1. Data Processing
+
+You can generate dummy data or process your own CSV files.
+
+-   **Generate Dummy Data:**
+    ```bash
+    python processing/generate_dummy_data.py
+    ```
+
+-   **Process CSV Data:**
+    Use `processing/process_csv.py` to preprocess your raw data.
+    ```bash
+    python processing/process_csv.py <path_to_your_raw_csv.csv> <path_for_processed_output.csv>
+    ```
+
+### 2. Model Training
+
+Train the churn prediction model using `model/train_model.py`.
+
+```bash
+python model/train_model.py
 ```
-POST /api/v1/predict
+This will train the model and save it to the `models/` directory.
+
+### 3. Model Prediction
+
+Predict churn on new, processed data using `model/predict_model.py`.
+
+```bash
+python model/predict_model.py <path_to_processed_data.csv>
+```
+This script will output predictions based on the provided processed data.
+
+### 4. Report Generation
+
+Generate a performance report for the model using `report/report_generator.py`.
+
+```bash
+python report/report_generator.py
+```
+This will generate a report based on the model's performance.
+
+### 5. Running Tests
+
+To run the tests for the model, use:
+
+```bash
+python -m pytest tests/test_model.py
 ```
 
-Example request body:
+## Best Practices
 
-```json
-{
-  "days_since_signup": 120,
-  "monthly_revenue": 50,
-  "number_of_logins_last30days": 5,
-  "active_features_used": 3,
-  "support_tickets_opened": 2,
-  "last_payment_status": "Success",
-  "subscription_plan": "Premium"
-}
-```
-
-## Local Development
-
-1. Install dependencies:
-   ```
-   pip install -r requirements.txt
-   ```
-
-2. Run the application:
-   ```
-   uvicorn app:app --reload
-   ```
-
-3. Access the API at http://localhost:8000
+-   Ensure your `requirements.txt` is up-to-date with all project dependencies.
+-   Use `.gitignore` to exclude temporary files, logs, and large datasets from version control.
+-   Comment your code for clarity and maintainability.

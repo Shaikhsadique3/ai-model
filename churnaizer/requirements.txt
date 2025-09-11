@@ -1,7 +1,0 @@
-Flask
-flask-cors
-pandas
-scikit-learn
-reportlab
-matplotlib
-APScheduler

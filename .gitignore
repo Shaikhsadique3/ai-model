@@ -24,3 +24,14 @@ venv/
 # Local development
 *.db
 *.sqlite
+
+# Logs and Reports
+logs/
+reports/
+
+# Uploads and Temporary files
+uploads/
+temp/
+
+# Model artifacts
+*.pkl
