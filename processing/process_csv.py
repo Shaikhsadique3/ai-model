@@ -5,6 +5,10 @@ import logging
 from datetime import datetime, timedelta
 from .predict import ChurnPredictorService
 
+class DataProcessingError(Exception):
+    """Custom exception for data processing errors."""
+    pass
+
 # Configure logging
 logging.basicConfig(filename='log.txt', level=logging.INFO,
                     format='%(asctime)s - %(levelname)s - %(message)s')
@@ -19,21 +23,18 @@ def process_csv(input_file: str): # Removed output_file parameter
     except FileNotFoundError:
         error_msg = f"Error: input.csv not found at {input_file}"
         logging.error(error_msg)
-        warnings.append(error_msg)
-        return None, None, warnings # Return None for df and stats_summary
+        raise DataProcessingError(error_msg)
     except Exception as e:
         error_msg = f"Error reading CSV file: {e}"
         logging.error(error_msg)
-        warnings.append(error_msg)
-        return None, None, warnings # Return None for df and stats_summary
+        raise DataProcessingError(error_msg)
 
     required_columns = ['user_id', 'signup_date', 'last_login_timestamp', 'billing_status', 'plan_name']
     for col in required_columns:
         if col not in df.columns:
             error_msg = f"Error: Missing required column: {col}"
             logging.error(error_msg)
-            warnings.append(error_msg)
-            return None, None, warnings # Return None for df and stats_summary
+            raise DataProcessingError(error_msg)
 
     # Keep the original user_id for prediction
     df['original_user_id'] = df['user_id']
