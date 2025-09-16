@@ -2,7 +2,7 @@ import React from 'react';
 import { Loader2, AlertCircle, RefreshCw } from 'lucide-react';
 import { ProcessingStatusProps } from '../types';
 
-const ProcessingStatus: React.FC<ProcessingStatusProps> = ({ state, onRetry }) => {
+const ProcessingStatus: React.FC<ProcessingStatusProps> = ({ state, errorMessage, onRetry }) => {
   if (state === 'processing') {
     return (
       <div className="max-w-2xl mx-auto">
@@ -81,6 +81,9 @@ const ProcessingStatus: React.FC<ProcessingStatusProps> = ({ state, onRetry }) =
               <h2 className="text-2xl font-semibold text-gray-900 mb-2">
                 Processing Failed
               </h2>
+              {errorMessage && (
+                <p className="text-red-600 mb-4 font-medium">Error: {errorMessage}</p>
+              )}
               <p className="text-gray-600 mb-6">
                 We encountered an error while analyzing your data. This could be due to:
               </p>

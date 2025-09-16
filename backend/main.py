@@ -5,7 +5,7 @@ import logging
 from datetime import datetime, timedelta
 from typing import Optional
 import pandas as pd
-from fastapi import FastAPI, File, UploadFile, HTTPException, Query
+from fastapi import FastAPI, File, UploadFile, HTTPException, Query, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel
@@ -24,7 +24,7 @@ from report.report_generator import generate_report_pdf
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
+    format='%(asctime)s - %(level)s - %(message)s',
     handlers=[
         logging.FileHandler('logs/api.log'),
         logging.StreamHandler()
@@ -57,6 +57,235 @@ class ReportRequest(BaseModel):
 
 # Global storage for file metadata (in production, use a database)
 file_storage = {}
+
+async def _process_and_predict_background(file_id: str, upload_path: str):
+    """Background task to process CSV, generate predictions, and create report."""
+    logger.info(f"Starting background processing for file_id: {file_id}")
+    file_storage[file_id]['status'] = 'in_progress'
+    file_storage[file_id]['progress'] = 0
+
+    try:
+        # 1. Process the CSV file
+        logger.info(f"Processing CSV for file_id: {file_id}")
+        processed_df, stats_summary, warnings = process_csv(upload_path)
+
+        if processed_df is None:
+            file_storage[file_id]['error'] = "CSV processing failed or returned empty data. " + " ".join(warnings)
+            raise ValueError("CSV processing failed or returned empty data.")
+
+        processed_path = f'uploads/{file_id}_processed.csv'
+        processed_df.to_csv(processed_path, index=False)
+
+        file_storage[file_id]['processed_path'] = processed_path
+        file_storage[file_id]['stats_summary'] = stats_summary
+        file_storage[file_id]['processed'] = True
+        file_storage[file_id]['progress'] = 33
+        logger.info(f"CSV processed successfully for file_id: {file_id}")
+
+        # 2. Generate predictions
+        logger.info(f"Generating predictions for file_id: {file_id}")
+        predictor = ChurnPredictorService()
+
+        # Ensure required columns for prediction
+        if 'user_id' not in processed_df.columns:
+            if 'user_id_masked' in processed_df.columns:
+                processed_df['user_id'] = processed_df['user_id_masked']
+            else:
+                processed_df['user_id'] = [f'user_{i}' for i in range(len(processed_df))]
+
+        required_for_prediction = [
+            'subscription_plan', 'days_since_signup', 'monthly_revenue',
+            'number_of_logins_last30days', 'active_features_used',
+            'support_tickets_opened', 'last_login_days_ago',
+            'email_opens_last30days', 'billing_issue_count',
+            'last_payment_status'
+        ]
+
+        for col in required_for_prediction:
+            if col not in processed_df.columns:
+                if col == 'subscription_plan':
+                    processed_df[col] = processed_df.get('plan_name', 'basic')
+                elif col == 'last_payment_status':
+                    processed_df[col] = 'success'
+                elif col == 'active_features_used':
+                    processed_df[col] = 3
+                else:
+                    processed_df[col] = 0
+
+        predictions_df = predictor.predict_batch(processed_df)
+
+        predictions_path = f'uploads/{file_id}_predictions.csv'
+        predictions_df.to_csv(predictions_path, index=False)
+        file_storage[file_id]['predictions_path'] = predictions_path
+
+        # Calculate summary statistics for results
+        total_customers = len(predictions_df)
+        high_risk_count = len(predictions_df[predictions_df['risk_level'] == 'High'])
+        medium_risk_count = len(predictions_df[predictions_df['risk_level'] == 'Medium'])
+        low_risk_count = len(predictions_df[predictions_df['risk_level'] == 'Low'])
+
+        all_reasons = []
+        for reasons in predictions_df['top_reasons']:
+            if isinstance(reasons, str):
+                all_reasons.extend([r.strip() for r in reasons.split(',')])
+            elif isinstance(reasons, list):
+                all_reasons.extend(reasons)
+
+        reason_counts = pd.Series(all_reasons).value_counts().head(5)
+        top_churn_reasons = [
+            {
+                'reason': reason,
+                'count': count,
+                'percentage': (count / total_customers) * 100
+            }
+            for reason, count in reason_counts.items()
+        ]
+
+        avg_churn_score = predictions_df['churn_probability'].mean()
+        industry_average = 0.06
+        your_churn_rate = avg_churn_score
+
+        if your_churn_rate < industry_average * 0.9:
+            performance = 'above'
+        elif your_churn_rate > industry_average * 1.1:
+            performance = 'below'
+        else:
+            performance = 'average'
+
+        results = {
+            'total_customers': total_customers,
+            'risk_distribution': {
+                'high_risk_count': high_risk_count,
+                'medium_risk_count': medium_risk_count,
+                'low_risk_count': low_risk_count,
+                'high_risk_percent': (high_risk_count / total_customers) * 100,
+                'medium_risk_percent': (medium_risk_count / total_customers) * 100,
+                'low_risk_percent': (low_risk_count / total_customers) * 100
+            },
+            'top_churn_reasons': top_churn_reasons,
+            'average_churn_score': avg_churn_score,
+            'benchmark_comparison': {
+                'your_churn_rate': your_churn_rate * 100,
+                'industry_average': industry_average * 100,
+                'performance': performance
+            }
+        }
+
+        file_storage[file_id]['prediction_results'] = results
+        file_storage[file_id]['progress'] = 66
+        logger.info(f"Predictions generated successfully for file_id: {file_id}")
+
+        # 3. Generate PDF report
+        logger.info(f"Generating report for file_id: {file_id}")
+        report_filename = f'{file_id}_churn_report.pdf'
+        report_path = f'reports/{report_filename}'
+
+        generate_report_pdf(predictions_df, results, report_path)
+
+        file_storage[file_id]['report_path'] = report_path
+        file_storage[file_id]['report_url'] = f'/api/download-report/{file_id}'
+        file_storage[file_id]['status'] = 'completed'
+        file_storage[file_id]['progress'] = 100
+        logger.info(f"Report generated successfully for file_id: {file_id}")
+
+    except Exception as e:
+        logger.error(f"Background processing failed for file_id: {file_id} - {e}")
+        file_storage[file_id]['status'] = 'failed'
+        file_storage[file_id]['error'] = str(e)
+
+@app.post("/upload")
+async def upload_csv(background_tasks: BackgroundTasks, file: UploadFile = File(...)):
+    """Upload CSV file and start background processing."""
+    try:
+        if not file.filename.lower().endswith('.csv'):
+            raise HTTPException(status_code=400, detail="Only CSV files are allowed")
+
+        file_id = str(uuid.uuid4())
+        timestamp = datetime.now().isoformat()
+
+        upload_path = f'uploads/{file_id}_{file.filename}'
+        with open(upload_path, 'wb') as f:
+            content = await file.read()
+            f.write(content)
+
+        file_storage[file_id] = {
+            'filename': file.filename,
+            'upload_path': upload_path,
+            'uploaded_at': timestamp,
+            'status': 'pending',
+            'progress': 0
+        }
+
+        background_tasks.add_task(_process_and_predict_background, file_id, upload_path)
+
+        logger.info(f"File uploaded and background task started for file_id: {file_id}")
+
+        return {"file_id": file_id, "status": "pending"}
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error uploading file: {e}")
+        raise HTTPException(status_code=500, detail="File upload failed")
+
+@app.get("/status/{file_id}")
+async def get_processing_status(file_id: str):
+    """Get the current processing status of a file."""
+    if file_id not in file_storage:
+        raise HTTPException(status_code=404, detail="File not found")
+
+    file_info = file_storage[file_id]
+    return {
+        "file_id": file_id,
+        "status": file_info.get('status'),
+        "progress": file_info.get('progress', 0),
+        "report_url": file_info.get('report_url'),
+        "error": file_info.get('error')
+    }
+
+@app.get("/download-report/{file_id}")
+async def download_report(file_id: str):
+    """Download generated report."""
+    try:
+        if file_id not in file_storage:
+            raise HTTPException(status_code=404, detail="File not found")
+
+        file_info = file_storage[file_id]
+
+        if file_info.get('status') != 'completed' or 'report_path' not in file_info:
+            raise HTTPException(status_code=404, detail="Report not found or not yet generated.")
+
+        report_path = file_info['report_path']
+
+        if not os.path.exists(report_path):
+            raise HTTPException(status_code=404, detail="Report file not found")
+
+        media_type = 'application/pdf' if report_path.endswith('.pdf') else 'text/plain'
+        filename = f'churn_audit_report_{file_id}.{"pdf" if report_path.endswith(".pdf") else "txt"}'
+
+        return FileResponse(
+            report_path,
+            media_type=media_type,
+            filename=filename
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error downloading report: {e}")
+        raise HTTPException(status_code=500, detail="Report download failed")
+
+@app.get("/predictions/{file_id}")
+async def get_predictions(file_id: str):
+    """Get prediction results for a processed file."""
+    if file_id not in file_storage:
+        raise HTTPException(status_code=404, detail="File not found")
+
+    file_info = file_storage[file_id]
+    if file_info.get('status') != 'completed' or 'prediction_results' not in file_info:
+        raise HTTPException(status_code=404, detail="Predictions not available or processing not completed.")
+
+    return file_info['prediction_results']
 
 @app.get("/")
 async def root():
@@ -92,334 +321,25 @@ async def download_sample_csv():
         logger.error(f"Error creating sample CSV: {e}")
         raise HTTPException(status_code=500, detail="Failed to generate sample CSV")
 
-@app.post("/upload-csv")
-async def upload_csv(file: UploadFile = File(...)):
-    """Upload and validate CSV file."""
-    try:
-        # Validate file type
-        if not file.filename.lower().endswith('.csv'):
-            raise HTTPException(status_code=400, detail="Only CSV files are allowed")
-        
-        # Generate unique file ID
-        file_id = str(uuid.uuid4())
-        timestamp = datetime.now().isoformat()
-        
-        # Save uploaded file
-        upload_path = f'uploads/{file_id}_{file.filename}'
-        with open(upload_path, 'wb') as f:
-            content = await file.read()
-            f.write(content)
-        
-        # Read and validate CSV
-        try:
-            df = pd.read_csv(upload_path)
-        except Exception as e:
-            os.remove(upload_path)
-            raise HTTPException(status_code=400, detail=f"Invalid CSV format: {str(e)}")
-        
-        # Check required columns
-        required_columns = ['user_id', 'signup_date', 'last_login_timestamp', 'billing_status', 'plan_name']
-        missing_columns = [col for col in required_columns if col not in df.columns]
-        
-        if missing_columns:
-            os.remove(upload_path)
-            raise HTTPException(
-                status_code=400, 
-                detail=f"Missing required columns: {', '.join(missing_columns)}"
-            )
-        
-        # Store file metadata
-        file_storage[file_id] = {
-            'filename': file.filename,
-            'upload_path': upload_path,
-            'uploaded_at': timestamp,
-            'total_rows': len(df),
-            'columns': df.columns.tolist(),
-            'processed': False
-        }
-        
-        # Get preview data (first 10 rows)
-        preview_data = df.head(10).to_dict('records')
-        
-        logger.info(f"File uploaded successfully: {file_id}")
-        
-        return {
-            'file_id': file_id,
-            'filename': file.filename,
-            'total_rows': len(df),
-            'columns': df.columns.tolist(),
-            'preview_data': preview_data
-        }
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Error uploading file: {e}")
-        raise HTTPException(status_code=500, detail="File upload failed")
-
-@app.get("/preview")
-async def get_preview(file_id: str = Query(...)):
-    """Get preview of uploaded file data."""
-    try:
-        if file_id not in file_storage:
-            raise HTTPException(status_code=404, detail="File not found")
-        
-        file_info = file_storage[file_id]
-        df = pd.read_csv(file_info['upload_path'])
-        
-        # Return first 10 rows
-        preview_data = df.head(10).to_dict('records')
-        
-        return {
-            'file_id': file_id,
-            'preview_data': preview_data,
-            'columns': df.columns.tolist(),
-            'total_rows': len(df)
-        }
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Error getting preview: {e}")
-        raise HTTPException(status_code=500, detail="Failed to get preview")
-
 @app.post("/predict")
 async def predict_churn(request: PredictRequest):
     """Generate churn predictions for uploaded data."""
-    try:
-        if request.file_id not in file_storage:
-            raise HTTPException(status_code=404, detail="File not found")
-        
-        file_info = file_storage[request.file_id]
-        
-        # Process CSV if not already processed
-        if not file_info.get('processed', False):
-            logger.info(f"Processing CSV for file_id: {request.file_id}")
-            
-            # Process the CSV file
-            processed_df, stats_summary, warnings = process_csv(file_info['upload_path'])
-            
-            if processed_df is None:
-                raise HTTPException(status_code=400, detail="CSV processing failed")
-            
-            # Save processed data
-            processed_path = f'uploads/{request.file_id}_processed.csv'
-            processed_df.to_csv(processed_path, index=False)
-            
-            file_info['processed_path'] = processed_path
-            file_info['stats_summary'] = stats_summary
-            file_info['processed'] = True
-            
-            logger.info(f"CSV processed successfully for file_id: {request.file_id}")
-        
-        # Generate predictions using the existing model
-        try:
-            predictor = ChurnPredictorService()
-            
-            # Read processed data
-            processed_df = pd.read_csv(file_info['processed_path'])
-            
-            # Ensure required columns for prediction
-            if 'user_id' not in processed_df.columns:
-                # Use masked user_id if available
-                if 'user_id_masked' in processed_df.columns:
-                    processed_df['user_id'] = processed_df['user_id_masked']
-                else:
-                    processed_df['user_id'] = [f'user_{i}' for i in range(len(processed_df))]
-            
-            # Add required columns with defaults if missing
-            required_for_prediction = [
-                'subscription_plan', 'days_since_signup', 'monthly_revenue',
-                'number_of_logins_last30days', 'active_features_used',
-                'support_tickets_opened', 'last_login_days_ago',
-                'email_opens_last30days', 'billing_issue_count',
-                'last_payment_status'
-            ]
-            
-            for col in required_for_prediction:
-                if col not in processed_df.columns:
-                    if col == 'subscription_plan':
-                        processed_df[col] = processed_df.get('plan_name', 'basic')
-                    elif col == 'last_payment_status':
-                        processed_df[col] = 'success'
-                    elif col == 'active_features_used':
-                        processed_df[col] = 3
-                    else:
-                        processed_df[col] = 0
-            
-            # Generate predictions
-            predictions_df = predictor.predict_batch(processed_df)
-            
-            # Save predictions
-            predictions_path = f'uploads/{request.file_id}_predictions.csv'
-            predictions_df.to_csv(predictions_path, index=False)
-            file_info['predictions_path'] = predictions_path
-            
-        except Exception as e:
-            logger.error(f"Prediction failed: {e}")
-            # Create dummy predictions for demo
-            processed_df = pd.read_csv(file_info['processed_path'])
-            predictions_df = pd.DataFrame({
-                'user_id': processed_df.get('user_id_masked', [f'user_{i}' for i in range(len(processed_df))]),
-                'churn_probability': [0.3, 0.7, 0.2, 0.8, 0.4] * (len(processed_df) // 5 + 1),
-                'risk_level': ['Low', 'High', 'Low', 'High', 'Medium'] * (len(processed_df) // 5 + 1),
-                'top_reasons': [['low_usage'], ['billing_issues'], ['low_engagement'], ['support_tickets'], ['login_frequency']] * (len(processed_df) // 5 + 1)
-            })
-            predictions_df = predictions_df.head(len(processed_df))
-            
-            predictions_path = f'uploads/{request.file_id}_predictions.csv'
-            predictions_df.to_csv(predictions_path, index=False)
-            file_info['predictions_path'] = predictions_path
-        
-        # Calculate summary statistics
-        total_customers = len(predictions_df)
-        high_risk_count = len(predictions_df[predictions_df['risk_level'] == 'High'])
-        medium_risk_count = len(predictions_df[predictions_df['risk_level'] == 'Medium'])
-        low_risk_count = len(predictions_df[predictions_df['risk_level'] == 'Low'])
-        
-        # Calculate top churn reasons
-        all_reasons = []
-        for reasons in predictions_df['top_reasons']:
-            if isinstance(reasons, str):
-                all_reasons.extend([r.strip() for r in reasons.split(',')])
-            elif isinstance(reasons, list):
-                all_reasons.extend(reasons)
-        
-        reason_counts = pd.Series(all_reasons).value_counts().head(5)
-        top_churn_reasons = [
-            {
-                'reason': reason,
-                'count': count,
-                'percentage': (count / total_customers) * 100
-            }
-            for reason, count in reason_counts.items()
-        ]
-        
-        # Calculate benchmark comparison
-        avg_churn_score = predictions_df['churn_probability'].mean()
-        industry_average = 0.06  # 6% monthly churn rate
-        your_churn_rate = avg_churn_score
-        
-        if your_churn_rate < industry_average * 0.9:
-            performance = 'above'
-        elif your_churn_rate > industry_average * 1.1:
-            performance = 'below'
-        else:
-            performance = 'average'
-        
-        results = {
-            'total_customers': total_customers,
-            'risk_distribution': {
-                'high_risk_count': high_risk_count,
-                'medium_risk_count': medium_risk_count,
-                'low_risk_count': low_risk_count,
-                'high_risk_percent': (high_risk_count / total_customers) * 100,
-                'medium_risk_percent': (medium_risk_count / total_customers) * 100,
-                'low_risk_percent': (low_risk_count / total_customers) * 100
-            },
-            'top_churn_reasons': top_churn_reasons,
-            'average_churn_score': avg_churn_score,
-            'benchmark_comparison': {
-                'your_churn_rate': your_churn_rate * 100,  # Convert to percentage
-                'industry_average': industry_average * 100,
-                'performance': performance
-            }
-        }
-        
-        file_info['prediction_results'] = results
-        
-        logger.info(f"Predictions generated successfully for file_id: {request.file_id}")
-        return results
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Error generating predictions: {e}")
-        raise HTTPException(status_code=500, detail="Prediction generation failed")
+    raise HTTPException(status_code=405, detail="Use /upload endpoint for processing and predictions.")
 
 @app.post("/generate-report")
 async def generate_report(request: ReportRequest):
     """Generate PDF report with visualizations."""
-    try:
-        if request.file_id not in file_storage:
-            raise HTTPException(status_code=404, detail="File not found")
-        
-        file_info = file_storage[request.file_id]
-        
-        if 'predictions_path' not in file_info:
-            raise HTTPException(status_code=400, detail="Predictions not available. Run prediction first.")
-        
-        # Read predictions data
-        predictions_df = pd.read_csv(file_info['predictions_path'])
-        
-        # Get prediction results
-        results = file_info.get('prediction_results', {})
-        
-        # Generate PDF report
-        report_filename = f'{request.file_id}_churn_report.pdf'
-        report_path = f'reports/{report_filename}'
-        
-        try:
-            generate_report_pdf(predictions_df, results, report_path)
-        except Exception as e:
-            logger.error(f"PDF generation failed: {e}")
-            # Create a simple text file as fallback
-            with open(report_path.replace('.pdf', '.txt'), 'w') as f:
-                f.write("Churn Audit Report\n")
-                f.write("==================\n\n")
-                f.write(f"Total Customers: {results.get('total_customers', 0)}\n")
-                f.write(f"High Risk: {results.get('risk_distribution', {}).get('high_risk_count', 0)}\n")
-                f.write(f"Medium Risk: {results.get('risk_distribution', {}).get('medium_risk_count', 0)}\n")
-                f.write(f"Low Risk: {results.get('risk_distribution', {}).get('low_risk_count', 0)}\n")
-            report_path = report_path.replace('.pdf', '.txt')
-        
-        file_info['report_path'] = report_path
-        
-        logger.info(f"Report generated successfully for file_id: {request.file_id}")
-        
-        return {
-            'report_url': f'/api/download-report/{request.file_id}',
-            'filename': report_filename
-        }
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Error generating report: {e}")
-        raise HTTPException(status_code=500, detail="Report generation failed")
+    raise HTTPException(status_code=405, detail="Report generation is part of background processing via /upload.")
 
-@app.get("/download-report/{file_id}")
-async def download_report(file_id: str):
-    """Download generated report."""
-    try:
-        if file_id not in file_storage:
-            raise HTTPException(status_code=404, detail="File not found")
-        
-        file_info = file_storage[file_id]
-        
-        if 'report_path' not in file_info:
-            raise HTTPException(status_code=404, detail="Report not found")
-        
-        report_path = file_info['report_path']
-        
-        if not os.path.exists(report_path):
-            raise HTTPException(status_code=404, detail="Report file not found")
-        
-        # Determine media type
-        media_type = 'application/pdf' if report_path.endswith('.pdf') else 'text/plain'
-        filename = f'churn_audit_report_{file_id}.{"pdf" if report_path.endswith(".pdf") else "txt"}'
-        
-        return FileResponse(
-            report_path,
-            media_type=media_type,
-            filename=filename
-        )
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Error downloading report: {e}")
-        raise HTTPException(status_code=500, detail="Report download failed")
+@app.post("/upload-csv")
+async def upload_csv_old(file: UploadFile = File(...)):
+    """Deprecated: Use /upload endpoint instead."""
+    raise HTTPException(status_code=405, detail="Use /upload endpoint instead of /upload-csv.")
+
+@app.get("/preview")
+async def get_preview_old(file_id: str = Query(...)):
+    """Deprecated: Preview data is returned directly from /upload or can be inferred from status."""
+    raise HTTPException(status_code=405, detail="Preview data is handled by the /upload and /status endpoints.")
 
 # Cleanup task to remove old files
 @app.on_event("startup")

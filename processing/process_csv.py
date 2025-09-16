@@ -3,7 +3,7 @@ import hashlib
 import json
 import logging
 from datetime import datetime, timedelta
-from .predict import ChurnPredictorService
+from model.predict_model import ChurnPredictorService
 
 class DataProcessingError(Exception):
     """Custom exception for data processing errors."""
@@ -11,7 +11,7 @@ class DataProcessingError(Exception):
 
 # Configure logging
 logging.basicConfig(filename='log.txt', level=logging.INFO,
-                    format='%(asctime)s - %(levelname)s - %(message)s')
+                    format='%(asctime)s - %(level)s - %(message)s')
 
 def process_csv(input_file: str): # Removed output_file parameter
     warnings = []

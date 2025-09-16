@@ -2,11 +2,11 @@ import React from 'react';
 import { Download, TrendingUp, AlertTriangle, Users, Target, Award } from 'lucide-react';
 import { ResultsSummaryProps } from '../types';
 
-const ResultsSummary: React.FC<ResultsSummaryProps> = ({ results, reportUrl }) => {
+const ResultsSummary: React.FC<ResultsSummaryProps> = ({ results, reportUrl, fileId }) => {
   const downloadReport = async () => {
-    if (reportUrl) {
+    if (fileId) {
       try {
-        const response = await fetch(reportUrl);
+        const response = await fetch(`/api/download/${fileId}`);
         const blob = await response.blob();
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -19,15 +19,6 @@ const ResultsSummary: React.FC<ResultsSummaryProps> = ({ results, reportUrl }) =
       } catch (error) {
         console.error('Error downloading report:', error);
       }
-    }
-  };
-
-  const getRiskColor = (level: string) => {
-    switch (level) {
-      case 'high': return 'text-red-600 bg-red-50 border-red-200';
-      case 'medium': return 'text-yellow-600 bg-yellow-50 border-yellow-200';
-      case 'low': return 'text-green-600 bg-green-50 border-green-200';
-      default: return 'text-gray-600 bg-gray-50 border-gray-200';
     }
   };
 

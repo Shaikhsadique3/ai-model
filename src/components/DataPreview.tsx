@@ -2,27 +2,49 @@ import React, { useState, useEffect } from 'react';
 import { FileText, Users, Eye, Play } from 'lucide-react';
 import { DataPreviewProps } from '../types';
 
-const DataPreview: React.FC<DataPreviewProps> = ({ file, onGenerateReport }) => {
+const DataPreview: React.FC<DataPreviewProps> = ({ file }) => {
   const [previewData, setPreviewData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchPreview = async () => {
-      try {
-        const response = await fetch(`/api/preview?file_id=${file.file_id}`);
-        if (response.ok) {
-          const data = await response.json();
-          setPreviewData(data.preview_data || []);
+    if (file.preview_data) {
+      setPreviewData(file.preview_data);
+      setLoading(false);
+    } else {
+      // Fallback if preview_data is not immediately available (should not happen with new flow)
+      const fetchPreview = async () => {
+        try {
+          const response = await fetch(`/api/preview?file_id=${file.file_id}`);
+          if (response.ok) {
+            const data = await response.json();
+            setPreviewData(data.preview_data || []);
+          }
+        } catch (error) {
+          console.error('Error fetching preview:', error);
+        } finally {
+          setLoading(false);
         }
-      } catch (error) {
-        console.error('Error fetching preview:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
+      };
+      fetchPreview();
+    }
+  }, [file.file_id, file.preview_data]);
 
-    fetchPreview();
-  }, [file.file_id]);
+  const handleGenerateReport = async () => {
+    // This will trigger the processing in the backend
+    // The App.tsx will then poll for status updates
+    try {
+      const response = await fetch(`/api/process/${file.file_id}`, {
+        method: 'POST',
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      // No need to do anything here, App.tsx will handle status polling
+    } catch (error) {
+      console.error('Error triggering report generation:', error);
+      // Optionally, show an error message to the user
+    }
+  };
 
   return (
     <div className="max-w-6xl mx-auto space-y-8">
@@ -66,7 +88,7 @@ const DataPreview: React.FC<DataPreviewProps> = ({ file, onGenerateReport }) => 
         {/* Generate Report Button */}
         <div className="text-center">
           <button
-            onClick={onGenerateReport}
+            onClick={handleGenerateReport}
             className="btn-primary text-lg px-8 py-4"
           >
             <Play className="w-5 h-5 inline mr-2" />

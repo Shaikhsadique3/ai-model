@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Upload, FileText, Shield, TrendingUp, Users, AlertTriangle } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { FileText, Shield, TrendingUp, Users, AlertTriangle } from 'lucide-react';
 import FileUpload from './components/FileUpload';
 import DataPreview from './components/DataPreview';
 import ProcessingStatus from './components/ProcessingStatus';
@@ -11,46 +11,76 @@ function App() {
   const [uploadedFile, setUploadedFile] = useState<UploadedFile | null>(null);
   const [predictionResults, setPredictionResults] = useState<PredictionResults | null>(null);
   const [reportUrl, setReportUrl] = useState<string | null>(null);
+  const [fileId, setFileId] = useState<string | null>(null);
+  const [processingProgress, setProcessingProgress] = useState<number>(0);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const handleFileUploaded = (file: UploadedFile) => {
-    setUploadedFile(file);
-    setProcessingState('uploaded');
-  };
+  useEffect(() => {
+    let statusInterval: NodeJS.Timeout;
 
-  const handleGenerateReport = async () => {
-    if (!uploadedFile) return;
-    
-    setProcessingState('processing');
-    
+    if (fileId && processingState === 'processing') {
+      statusInterval = setInterval(async () => {
+        try {
+          const response = await fetch(`/api/status/${fileId}`);
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          const data = await response.json();
+
+          setProcessingProgress(data.progress);
+          if (data.status === 'completed') {
+            setProcessingState('completed');
+            setReportUrl(data.report_url);
+            // Fetch prediction results once completed
+            const resultsResponse = await fetch(`/api/predictions/${fileId}`); // Assuming a new endpoint for predictions
+            if (!resultsResponse.ok) {
+              throw new Error(`HTTP error! status: ${resultsResponse.status}`);
+            }
+            const resultsData = await resultsResponse.json();
+            setPredictionResults(resultsData);
+            clearInterval(statusInterval);
+          } else if (data.status === 'failed') {
+            setProcessingState('error');
+            setErrorMessage(data.error || 'Unknown error during processing.');
+            clearInterval(statusInterval);
+          }
+        } catch (error: any) {
+          console.error('Error polling status:', error);
+          setProcessingState('error');
+          setErrorMessage(error.message || 'Failed to get processing status.');
+          clearInterval(statusInterval);
+        }
+      }, 5000); // Poll every 5 seconds
+    }
+
+    return () => clearInterval(statusInterval);
+  }, [fileId, processingState]);
+
+  const handleFileUploaded = async (file: File) => {
+    setProcessingState('uploading');
+    setErrorMessage(null);
+    const formData = new FormData();
+    formData.append('file', file);
+
     try {
-      // Generate predictions
-      const predictResponse = await fetch('/api/predict', {
+      const response = await fetch('/api/upload', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ file_id: uploadedFile.file_id })
+        body: formData,
       });
-      
-      if (!predictResponse.ok) throw new Error('Prediction failed');
-      
-      const predictions = await predictResponse.json();
-      setPredictionResults(predictions);
-      setProcessingState('completed');
-      
-      // Generate PDF report
-      const reportResponse = await fetch('/api/generate-report', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ file_id: uploadedFile.file_id })
-      });
-      
-      if (!reportResponse.ok) throw new Error('Report generation failed');
-      
-      const reportData = await reportResponse.json();
-      setReportUrl(reportData.report_url);
-      
-    } catch (error) {
-      console.error('Error generating report:', error);
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'File upload failed');
+      }
+
+      const data = await response.json();
+      setFileId(data.file_id);
+      setUploadedFile({ file_id: data.file_id, filename: file.name, total_rows: data.total_rows, columns: data.columns, preview_data: data.preview_data });
+      setProcessingState('uploaded'); // Change to 'uploaded' to show DataPreview
+    } catch (error: any) {
+      console.error('Error uploading file:', error);
       setProcessingState('error');
+      setErrorMessage(error.message || 'File upload failed.');
     }
   };
 
@@ -59,6 +89,9 @@ function App() {
     setUploadedFile(null);
     setPredictionResults(null);
     setReportUrl(null);
+    setFileId(null);
+    setProcessingProgress(0);
+    setErrorMessage(null);
   };
 
   return (
@@ -89,7 +122,7 @@ function App() {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {processingState === 'idle' && (
+        {(processingState === 'idle' || processingState === 'uploading') && (
           <>
             {/* Hero Section */}
             <div className="text-center mb-12">
@@ -152,21 +185,23 @@ function App() {
         {processingState === 'uploaded' && uploadedFile && (
           <DataPreview 
             file={uploadedFile} 
-            onGenerateReport={handleGenerateReport}
           />
         )}
 
-        {(processingState === 'processing' || processingState === 'error') && (
+        {(processingState === 'processing' || processingState === 'error' || processingState === 'uploading') && (
           <ProcessingStatus 
             state={processingState}
-            onRetry={handleGenerateReport}
+            progress={processingProgress}
+            errorMessage={errorMessage}
+            onRetry={resetApp}
           />
         )}
 
-        {processingState === 'completed' && predictionResults && (
+        {processingState === 'completed' && predictionResults && fileId && (
           <ResultsSummary 
             results={predictionResults}
             reportUrl={reportUrl}
+            fileId={fileId}
           />
         )}
       </main>

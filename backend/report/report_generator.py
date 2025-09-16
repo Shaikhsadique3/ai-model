@@ -12,12 +12,12 @@ import logging
 import numpy as np
 from datetime import datetime
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(level)s - %(message)s')
 
 def generate_report_pdf(processed_df: pd.DataFrame, stats_summary: dict, output_filepath: str):
     """Generate a comprehensive PDF report with visualizations."""
     try:
-        doc = SimpleDocTemplate(output_filepath, pagesize=letter)
+        doc = SimpleDocTemplate(output_path, pagesize=letter)
         styles = getSampleStyleSheet()
         story = []
 
@@ -86,8 +86,9 @@ def generate_report_pdf(processed_df: pd.DataFrame, stats_summary: dict, output_
         metrics_table.setStyle(TableStyle([
             ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#f3f4f6')),
             ('TEXTCOLOR', (0, 0), (-1, 0), colors.HexColor('#1f2937')),
+
             ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONT', (0, 0), (-1, 0), 'Helvetica-Bold'),
             ('FONTSIZE', (0, 0), (-1, 0), 10),
             ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
             ('BACKGROUND', (0, 1), (-1, -1), colors.white),
@@ -111,7 +112,7 @@ def generate_report_pdf(processed_df: pd.DataFrame, stats_summary: dict, output_
                 plt.title('Customer Churn Risk Distribution', fontsize=14, fontweight='bold')
                 plt.axis('equal')
                 
-                chart_path = "temp_risk_distribution.png"
+                chart_path = os.path.join("temp", "temp_risk_distribution.png")
                 plt.savefig(chart_path, dpi=300, bbox_inches='tight')
                 plt.close()
                 
@@ -142,9 +143,9 @@ def generate_report_pdf(processed_df: pd.DataFrame, stats_summary: dict, output_
                               color='#3b82f6', alpha=0.8)
                 plt.title('Top Churn Risk Factors', fontsize=14, fontweight='bold')
                 plt.xlabel('Risk Factors')
-                plt.ylabel('Number of Customers')
-                plt.xticks(range(len(reason_counts)), 
-                          [reason.replace('_', ' ').title() for reason in reason_counts.index], 
+                plt.ylabel('Count of Customers')
+                plt.gca().set_xticks(range(len(reason_counts)))
+                plt.gca().set_xticklabels([reason.replace('_', ' ').title() for reason in reason_counts.index],
                           rotation=45, ha='right')
                 
                 # Add value labels on bars
@@ -153,7 +154,7 @@ def generate_report_pdf(processed_df: pd.DataFrame, stats_summary: dict, output_
                             str(value), ha='center', va='bottom')
                 
                 plt.tight_layout()
-                chart_path = "temp_churn_reasons.png"
+                chart_path = os.path.join("temp", "temp_churn_reasons.png")
                 plt.savefig(chart_path, dpi=300, bbox_inches='tight')
                 plt.close()
                 
@@ -234,6 +235,10 @@ def generate_report_pdf(processed_df: pd.DataFrame, stats_summary: dict, output_
         
     except Exception as e:
         logging.error(f"Error generating PDF report: {e}")
+        # Clean up temporary image files in case of error
+        for temp_file in [os.path.join("temp", "temp_risk_distribution.png"), os.path.join("temp", "temp_churn_reasons.png")]:
+            if os.path.exists(temp_file):
+                os.remove(temp_file)
         # Create a simple text report as fallback
         try:
             with open(output_filepath.replace('.pdf', '.txt'), 'w') as f:
@@ -268,3 +273,8 @@ if __name__ == '__main__':
     
     generate_report_pdf(test_df, test_stats, "test_report.pdf")
     print("Test report generated successfully!")
+
+    # Clean up temporary image files after test
+    for temp_file in [os.path.join("temp", "temp_risk_distribution.png"), os.path.join("temp", "temp_churn_reasons.png")]:
+        if os.path.exists(temp_file):
+            os.remove(temp_file)

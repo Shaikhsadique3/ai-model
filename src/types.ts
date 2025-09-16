@@ -1,4 +1,4 @@
-export type ProcessingState = 'idle' | 'uploaded' | 'processing' | 'completed' | 'error';
+export type ProcessingState = 'idle' | 'uploaded' | 'processing' | 'completed' | 'error' | 'uploading';
 
 export interface UploadedFile {
   file_id: string;
@@ -32,20 +32,22 @@ export interface PredictionResults {
 }
 
 export interface FileUploadProps {
-  onFileUploaded: (file: UploadedFile) => void;
+  onFileUploaded: (file: File) => Promise<void>;
 }
 
 export interface DataPreviewProps {
   file: UploadedFile;
-  onGenerateReport: () => void;
 }
 
 export interface ProcessingStatusProps {
   state: ProcessingState;
+  progress: number;
+  errorMessage: string | null;
   onRetry: () => void;
 }
 
 export interface ResultsSummaryProps {
   results: PredictionResults;
   reportUrl: string | null;
+  fileId: string;
 }

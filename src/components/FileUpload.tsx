@@ -23,14 +23,14 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileUploaded }) => {
     setIsDragOver(false);
     
     const files = Array.from(e.dataTransfer.files);
-    if (files.length > 0) {
+    if (files.length > 0 && files[0] instanceof File) {
       handleFileUpload(files[0]);
     }
   };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
-    if (files && files.length > 0) {
+    if (files && files.length > 0 && files[0] instanceof File) {
       handleFileUpload(files[0]);
     }
   };
@@ -53,7 +53,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileUploaded }) => {
       const formData = new FormData();
       formData.append('file', file);
 
-      const response = await fetch('/api/upload-csv', {
+      const response = await fetch('/api/upload', {
         method: 'POST',
         body: formData,
       });
