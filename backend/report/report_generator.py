@@ -14,10 +14,11 @@ from datetime import datetime
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(level)s - %(message)s')
 
-def generate_report_pdf(processed_df: pd.DataFrame, stats_summary: dict, output_filepath: str):
+def generate_report_pdf(processed_df: pd.DataFrame, stats_summary: dict, output_filepath: str, chart_dir: str = "temp"):
     """Generate a comprehensive PDF report with visualizations."""
+    os.makedirs(chart_dir, exist_ok=True)
     try:
-        doc = SimpleDocTemplate(output_path, pagesize=letter)
+        doc = SimpleDocTemplate(output_filepath, pagesize=letter)
         styles = getSampleStyleSheet()
         story = []
 
@@ -112,7 +113,7 @@ def generate_report_pdf(processed_df: pd.DataFrame, stats_summary: dict, output_
                 plt.title('Customer Churn Risk Distribution', fontsize=14, fontweight='bold')
                 plt.axis('equal')
                 
-                chart_path = os.path.join("temp", "temp_risk_distribution.png")
+                chart_path = os.path.join(chart_dir, "temp_risk_distribution.png")
                 plt.savefig(chart_path, dpi=300, bbox_inches='tight')
                 plt.close()
                 
@@ -154,7 +155,7 @@ def generate_report_pdf(processed_df: pd.DataFrame, stats_summary: dict, output_
                             str(value), ha='center', va='bottom')
                 
                 plt.tight_layout()
-                chart_path = os.path.join("temp", "temp_churn_reasons.png")
+                chart_path = os.path.join(chart_dir, "temp_churn_reasons.png")
                 plt.savefig(chart_path, dpi=300, bbox_inches='tight')
                 plt.close()
                 
@@ -235,8 +236,22 @@ def generate_report_pdf(processed_df: pd.DataFrame, stats_summary: dict, output_
         
     except Exception as e:
         logging.error(f"Error generating PDF report: {e}")
+        # Save charts
+        chart_paths = []
+        for chart_name, chart_fig in charts.items():
+            chart_path = os.path.abspath(os.path.join(chart_dir, f"temp_{chart_name}.png"))
+            chart_fig.write_image(chart_path)
+            chart_paths.append(chart_path)
+        
+        elements.append(Paragraph("Charts:", styles["h2"]))
+        for chart_path in chart_paths:
+            try:
+                elements.append(Image(chart_path, width=400, height=300))
+            except Exception as e:
+                print(f"Error adding image {chart_path} to PDF: {e}")
+                elements.append(Paragraph(f"Could not load chart: {os.path.basename(chart_path)}", styles["Normal"]))
         # Clean up temporary image files in case of error
-        for temp_file in [os.path.join("temp", "temp_risk_distribution.png"), os.path.join("temp", "temp_churn_reasons.png")]:
+        for temp_file in [os.path.join(chart_dir, "temp_risk_distribution.png"), os.path.join(chart_dir, "temp_churn_reasons.png")]:
             if os.path.exists(temp_file):
                 os.remove(temp_file)
         # Create a simple text report as fallback
@@ -275,6 +290,6 @@ if __name__ == '__main__':
     print("Test report generated successfully!")
 
     # Clean up temporary image files after test
-    for temp_file in [os.path.join("temp", "temp_risk_distribution.png"), os.path.join("temp", "temp_churn_reasons.png")]:
+    for temp_file in [os.path.join(chart_dir, "temp_risk_distribution.png"), os.path.join(chart_dir, "temp_churn_reasons.png")]:
         if os.path.exists(temp_file):
             os.remove(temp_file)

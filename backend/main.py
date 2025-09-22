@@ -98,7 +98,7 @@ async def _process_and_predict_background(file_id: str, upload_path: str):
             'number_of_logins_last30days', 'active_features_used',
             'support_tickets_opened', 'last_login_days_ago',
             'email_opens_last30days', 'billing_issue_count',
-            'last_payment_status'
+            'last_payment_status', 'avg_session_duration', 'trial_conversion_flag'
         ]
 
         for col in required_for_prediction:
@@ -109,6 +109,10 @@ async def _process_and_predict_background(file_id: str, upload_path: str):
                     processed_df[col] = 'success'
                 elif col == 'active_features_used':
                     processed_df[col] = 3
+                elif col == 'avg_session_duration':
+                    processed_df[col] = 0  # Default for avg_session_duration
+                elif col == 'trial_conversion_flag':
+                    processed_df[col] = 0  # Default for trial_conversion_flag
                 else:
                     processed_df[col] = 0
 
@@ -178,9 +182,10 @@ async def _process_and_predict_background(file_id: str, upload_path: str):
         # 3. Generate PDF report
         logger.info(f"Generating report for file_id: {file_id}")
         report_filename = f'{file_id}_churn_report.pdf'
-        report_path = f'reports/{report_filename}'
+        report_path = os.path.join('reports', report_filename)
+        logger.info(f"Report path for file_id {file_id}: {report_path}")
 
-        generate_report_pdf(predictions_df, results, report_path)
+        generate_report_pdf(predictions_df, results, report_path, chart_dir="temp")
 
         file_storage[file_id]['report_path'] = report_path
         file_storage[file_id]['report_url'] = f'/api/download-report/{file_id}'
@@ -342,8 +347,8 @@ async def get_preview_old(file_id: str = Query(...)):
     raise HTTPException(status_code=405, detail="Preview data is handled by the /upload and /status endpoints.")
 
 # Cleanup task to remove old files
-@app.on_event("startup")
-async def startup_event():
+# @app.on_event("startup")
+# async def startup_event():
     """Cleanup old files on startup."""
     try:
         # Clean up files older than 24 hours

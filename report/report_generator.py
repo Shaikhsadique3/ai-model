@@ -14,6 +14,11 @@ def generate_report_pdf(processed_df: pd.DataFrame, stats_summary: dict, output_
     styles = getSampleStyleSheet()
     story = []
 
+    # Ensure the output directory for charts exists
+    chart_dir = os.path.dirname(output_filepath)
+    if chart_dir and not os.path.exists(chart_dir):
+        os.makedirs(chart_dir, exist_ok=True)
+
     # Title
     story.append(Paragraph("Churnaizer Churn Audit Report", styles['h1']))
     story.append(Spacer(1, 0.2 * inch))
@@ -40,12 +45,12 @@ def generate_report_pdf(processed_df: pd.DataFrame, stats_summary: dict, output_
             plt.pie(risk_counts, labels=risk_counts.index, autopct='%1.1f%%', startangle=90)
             plt.title('Churn Risk Distribution')
             plt.axis('equal')
-            chart_path = "churn_risk_distribution.png"
+            chart_path = os.path.join(chart_dir, "churn_risk_distribution.png")
+            os.makedirs(os.path.dirname(chart_path), exist_ok=True)
             plt.savefig(chart_path)
             plt.close()
             story.append(Image(chart_path, width=400, height=300))
             story.append(Spacer(1, 0.1 * inch))
-            os.remove(chart_path) # Clean up chart image
         else:
             story.append(Paragraph("No churn risk data available for charting.", styles['Normal']))
     else:
@@ -70,12 +75,12 @@ def generate_report_pdf(processed_df: pd.DataFrame, stats_summary: dict, output_
                 plt.ylabel('Number of Customers')
                 plt.xticks(rotation=45, ha='right')
                 plt.tight_layout()
-                chart_path = "top_churn_reasons.png"
+                chart_path = os.path.join(chart_dir, "top_churn_reasons.png")
+                os.makedirs(os.path.dirname(chart_path), exist_ok=True)
                 plt.savefig(chart_path)
                 plt.close()
                 story.append(Image(chart_path, width=500, height=350))
                 story.append(Spacer(1, 0.1 * inch))
-                os.remove(chart_path) # Clean up chart image
             else:
                 story.append(Paragraph("No churn reasons data available for charting.", styles['Normal']))
         else:
@@ -128,7 +133,7 @@ def generate_report_pdf(processed_df: pd.DataFrame, stats_summary: dict, output_
 
 if __name__ == '__main__':
     # Example usage (for testing purposes)
-    # Create a dummy DataFrame and stats_summary for testing
+    # Create a dummy DataFrame and stats_summary for testing)
     dummy_data = {
         'user_id': [f'user_{i}' for i in range(1, 101)],
         'user_id_masked': [f'masked_{i}' for i in range(1, 101)],

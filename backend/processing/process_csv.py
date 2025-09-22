@@ -52,7 +52,7 @@ def process_csv(input_file: str):
     df['billing_status'] = df['billing_status'].apply(lambda x: 0 if x == 'active' else 1 if x == 'failed' else x)
 
     # Fill missing optional values with defaults
-    numeric_cols = ['support_tickets_opened', 'email_opens_last30days', 'monthly_revenue']
+    numeric_cols = ['support_tickets_opened', 'email_opens_last30days', 'monthly_revenue', 'avg_session_duration']
     for col in numeric_cols:
         if col in df.columns:
             df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0)
@@ -63,6 +63,13 @@ def process_csv(input_file: str):
     if 'last_payment_status' not in df.columns:
         df['last_payment_status'] = 'success'
 
+    # Add subscription_plan if not present, default to 'basic'
+    if 'subscription_plan' not in df.columns:
+        if 'plan_name' in df.columns:
+            df['subscription_plan'] = df['plan_name']
+        else:
+            df['subscription_plan'] = 'basic'
+    
     # Drop duplicate user_ids
     df.drop_duplicates(subset='user_id', inplace=True)
 
@@ -72,6 +79,7 @@ def process_csv(input_file: str):
     # Derive new fields
     df['days_since_signup'] = (datetime.now() - df['signup_date']).dt.days
     df['last_login_days_ago'] = (datetime.now() - df['last_login_timestamp']).dt.days
+    df['trial_conversion_flag'] = df.apply(lambda row: 1 if 'trial' in str(row['subscription_plan']).lower() and row['monthly_revenue'] > 0 else 0, axis=1)
 
     # Add placeholder fields for prediction model
     df['days_until_renewal'] = 30  # Placeholder
@@ -86,7 +94,8 @@ def process_csv(input_file: str):
     # Ensure all numeric columns are properly typed
     numeric_columns = ['days_since_signup', 'last_login_days_ago', 'monthly_revenue', 
                       'support_tickets_opened', 'email_opens_last30days', 'billing_issue_count',
-                      'number_of_logins_last30days', 'active_features_used']
+                      'number_of_logins_last30days', 'active_features_used', 'avg_session_duration',
+                      'trial_conversion_flag']
     
     for col in numeric_columns:
         df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0)
@@ -111,7 +120,7 @@ def process_csv(input_file: str):
         'user_id_masked', 'subscription_plan', 'days_since_signup', 'days_until_renewal',
         'last_login_days_ago', 'number_of_logins_last30days', 'time_to_first_value',
         'support_tickets_opened', 'email_opens_last30days', 'billing_issue_count',
-        'monthly_revenue', 'last_payment_status'
+        'monthly_revenue', 'last_payment_status', 'avg_session_duration', 'trial_conversion_flag'
     ]
 
     # Ensure all output columns exist
