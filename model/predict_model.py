@@ -7,7 +7,7 @@ import numpy as np
 import configparser
 import pandas as pd
 
-from .preprocessing import preprocess_data
+from processing.preprocessing import preprocess_data
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
