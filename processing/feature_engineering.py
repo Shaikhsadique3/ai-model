@@ -18,7 +18,7 @@ def feature_engineer_and_preprocess(file_path):
     # Feature Engineering
     # 1. Engagement Score: A composite score based on login frequency and active features used.
     #    Assuming higher login frequency and more active features indicate higher engagement.
-    df['engagement_score'] = df['logins_last30days'] * df['active_features_used']
+    df['engagement_score'] = df['number_of_logins_last30days'] * df['active_features_used']
 
     # 2. Payment Reliability: A categorical feature derived from 'payment_status'.
     #    This can be directly used from the existing 'payment_status' column after encoding.
@@ -32,7 +32,7 @@ def feature_engineer_and_preprocess(file_path):
     # Handle Missing Values (if any, though synthetic data might be clean)
     # For numerical features, we'll fill with the median.
     for col in ['monthly_revenue', 'days_since_signup', 'last_login_days_ago', 
-                'logins_last30days', 'active_features_used', 'tickets_opened', 
+                'number_of_logins_last30days', 'active_features_used', 'tickets_opened', 
                 'NPS_score', 'engagement_score', 'satisfaction_trend']:
         if df[col].isnull().any():
             df[col] = df[col].fillna(df[col].median())

@@ -14,6 +14,8 @@ import os, json, uuid
 from datetime import datetime
 import numpy as np
 import pandas as pd
+import sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import classification_report, roc_auc_score
@@ -21,6 +23,7 @@ from imblearn.over_sampling import SMOTE
 import joblib
 import requests
 import matplotlib.pyplot as plt
+from processing.feature_engineering import feature_engineer_and_preprocess
 
 from sklearn.model_selection import train_test_split, StratifiedKFold, cross_val_score
 from sklearn.pipeline import Pipeline
@@ -234,8 +237,7 @@ def main():
         f.write("=====================\n")
         f.write(json.dumps(train_summary, indent=2))
 
-    print("5) Attempting optional ONNX export (skl2onnx must be installed)...
-")
+    print("5) Attempting optional ONNX export (skl2onnx must be installed)...\n")
     try:
         from skl2onnx import convert_sklearn
         from skl2onnx.common.data_types import FloatTensorType
@@ -282,4 +284,4 @@ if __name__ == "__main__":
     # For now, we'll assume DATA_CSV points to the raw data.
     # preprocessed_file_path = r'c:\Users\Sadique\Desktop\ai model\data\preprocessed_saas_churn.csv'
     # train_churn_model(preprocessed_file_path) # This call is now effectively a no-op
-    main() 
+    main()
