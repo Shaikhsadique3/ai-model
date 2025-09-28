@@ -1,12 +1,11 @@
-import pandas as pd
-import joblib
-import os
 
-def get_model_specifications():
-    # Placeholder for model architecture, training methodology, input/output requirements
-    # This information would typically be extracted from model training scripts or configuration files.
-    # For now, providing a generic structure.
-    return """
+# AI Model Technical Report
+
+**Version**: 1.0
+**Date**: 2025-09-27 21:41:01
+**Author**: AI Assistant
+
+
 ### 1. Model Specifications
 
 #### 1.1 Architecture
@@ -33,38 +32,8 @@ def get_model_specifications():
 - **Output Format**: Probability score (float between 0 and 1) representing the likelihood of churn, and a binary prediction (0 or 1).
 - **Interpretation**: Higher probability scores indicate a higher likelihood of churn. A threshold (e.g., 0.5) is used to classify as churned (1) or not churned (0).
 - **Confidence Metrics**: The probability score itself can be interpreted as a confidence level. Further calibration might be applied for better confidence estimates.
-"""
 
-def get_performance_capabilities(model_path, preprocessed_data_path):
-    # Placeholder for performance metrics and operational limitations
-    # This would involve loading the model and running evaluation metrics.
-    # For now, providing a generic structure and some example metrics.
 
-    # Load the trained model
-    model = joblib.load(model_path)
-
-    # Load preprocessed data (assuming it includes the target variable 'churned')
-    df_preprocessed = pd.read_csv(preprocessed_data_path)
-    X = df_preprocessed.drop('churned', axis=1)
-    y = df_preprocessed['churned']
-
-    # For a real report, you would run evaluation on a test set, not the full preprocessed data.
-    # This is a simplified example.
-    from sklearn.model_selection import train_test_split
-    from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score
-
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-    y_pred = model.predict(X_test)
-    y_proba = model.predict_proba(X_test)[:, 1]
-
-    accuracy = accuracy_score(y_test, y_pred)
-    precision = precision_score(y_test, y_pred)
-    recall = recall_score(y_test, y_pred)
-    f1 = f1_score(y_test, y_pred)
-    auc_roc = roc_auc_score(y_test, y_proba)
-
-    return f"""
 ### 2. Performance Capabilities
 
 #### 2.1 Supported Prediction Types
@@ -72,11 +41,11 @@ def get_performance_capabilities(model_path, preprocessed_data_path):
 - **Output**: Predicts whether a customer will churn (1) or not churn (0).
 
 #### 2.2 Performance Metrics (Validation Results)
-- **Accuracy**: {accuracy:.4f}
-- **Precision**: {precision:.4f}
-- **Recall**: {recall:.4f}
-- **F1-Score**: {f1:.4f}
-- **AUC-ROC**: {auc_roc:.4f}
+- **Accuracy**: 0.9830
+- **Precision**: 0.9538
+- **Recall**: 0.9812
+- **F1-Score**: 0.9673
+- **AUC-ROC**: 0.9992
 
 #### 2.3 Operational Limitations
 - **Data Drift**: Performance may degrade if the distribution of input data changes significantly over time.
@@ -84,11 +53,8 @@ def get_performance_capabilities(model_path, preprocessed_data_path):
 - **Interpretability**: While SHAP values provide local interpretability, the underlying ensemble model can be complex.
 - **Bias**: Potential for bias if training data is not representative of the target population.
 - **Edge Cases**: May perform poorly on customers with highly unusual behavior patterns not seen during training.
-"""
 
-def get_comparative_analysis():
-    # Placeholder for comparative analysis
-    return """
+
 ### 3. Comparative Analysis
 
 #### 3.1 Industry Benchmarking
@@ -100,11 +66,8 @@ def get_comparative_analysis():
 #### 3.3 Evaluation Framework
 - **Metrics**: Accuracy, Precision, Recall, F1-Score, AUC-ROC.
 - **Methodology**: Cross-validation on training data, final evaluation on a held-out test set.
-"""
 
-def get_deployment_specifications():
-    # Placeholder for deployment specifications
-    return """
+
 ### 4. Deployment Specifications
 
 #### 4.1 System Requirements
@@ -130,31 +93,3 @@ def get_deployment_specifications():
 - **Limitations**: 
     - **Data Volume**: Extremely large input data batches might increase latency.
     - **Model Size**: Very complex models with many trees could increase memory usage and inference time.
-"""
-
-def generate_technical_report(model_path, preprocessed_data_path, output_file="technical_report.md"):
-    report_content = """
-# AI Model Technical Report
-
-**Version**: 1.0
-**Date**: {date}
-**Author**: AI Assistant
-
-""".format(date=pd.Timestamp.now().strftime("%Y-%m-%d %H:%M:%S"))
-
-    report_content += get_model_specifications()
-    report_content += "\n" + get_performance_capabilities(model_path, preprocessed_data_path)
-    report_content += "\n" + get_comparative_analysis()
-    report_content += "\n" + get_deployment_specifications()
-
-    with open(output_file, "w") as f:
-        f.write(report_content)
-    
-    print(f"Technical report generated successfully: {output_file}")
-
-if __name__ == "__main__":
-    model_file_path = r'c:\Users\Sadique\Desktop\ai model\model\churn_prediction_model.joblib'
-    preprocessed_file_path = r'c:\Users\Sadique\Desktop\ai model\data\preprocessed_saas_churn.csv'
-    output_report_file = r'c:\Users\Sadique\Desktop\ai model\report\technical_report.md'
-
-    generate_technical_report(model_file_path, preprocessed_file_path, output_report_file)

@@ -11,19 +11,19 @@ import logging
 import pandas as pd
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix, roc_auc_score
 
-from churnaizer.src.preprocessing import preprocess_data
+# from churnaizer.src.preprocessing import preprocess_data # Removed as preprocessing is now part of the pipeline
 
 def evaluate_model(
     data_path: str,
     model_path: str,
-    preprocessor_path: str,
+    # preprocessor_path: str, # Removed as preprocessor is part of the pipeline
     categorical_features: list,
     target_column: str,
     output_report_path: str
 ):
     logging.info("Starting model evaluation...")
 
-    # 1. Load the dataset and trained model
+    # 1. Load the dataset and trained model (which now includes the preprocessor)
     try:
         df = pd.read_csv(data_path)
         logging.info(f"Dataset loaded from {data_path}")
@@ -35,32 +35,24 @@ def evaluate_model(
         return
 
     try:
-        model = joblib.load(model_path)
-        logging.info(f"Model loaded from {model_path}")
+        # Load the entire pipeline (preprocessor + model)
+        pipeline = joblib.load(model_path)
+        logging.info(f"Pipeline (model + preprocessor) loaded from {model_path}")
     except FileNotFoundError:
-        logging.error(f"Model not found at {model_path}")
+        logging.error(f"Pipeline not found at {model_path}")
+        return
+    except Exception as e:
+        logging.error(f"Error loading pipeline from {model_path}: {e}")
         return
 
-    try:
-        ohe = joblib.load(preprocessor_path)
-        logging.info(f"Preprocessor (OneHotEncoder) loaded from {preprocessor_path}")
-    except FileNotFoundError:
-        logging.error(f"Preprocessor not found at {preprocessor_path}")
-        return
+    # 2. Separate features and target
+    X = df.drop(columns=[target_column])
+    y = df[target_column]
 
-    # 2. Preprocess the data (use same steps as training)
-    logging.info("Preprocessing data...")
-    X_processed, y, _ = preprocess_data(df.copy(), categorical_features, target_column)
-
-    # Ensure columns match the training data after preprocessing
-    # This is a crucial step if the test data has different columns or order
-    # For simplicity, we'll assume the preprocess_data function handles this consistently
-    # In a real-world scenario, you might need to align columns using the fitted OHE's feature names
-
-    # 3. Predict on test split
+    # 3. Predict on test split using the loaded pipeline
     logging.info("Making predictions...")
-    y_pred = model.predict(X_processed)
-    y_proba = model.predict_proba(X_processed)[:, 1]
+    y_pred = pipeline.predict(X)
+    y_proba = pipeline.predict_proba(X)[:, 1]
 
     # 4. Output evaluation metrics
     accuracy = accuracy_score(y, y_pred)
@@ -116,8 +108,8 @@ ROC-AUC Score: {roc_auc:.4f}
 if __name__ == "__main__":
     # Define paths and parameters
     DATA_PATH = 'c:\\Users\\Sadique\\Desktop\\ai model\\churnaizer\\data\\enhanced_saas_churn_data.csv'
-    MODEL_PATH = 'c:\\Users\\Sadique\\Desktop\\ai model\\churnaizer\\models\\churnaizer_saas_model.pkl'
-    PREPROCESSOR_PATH = 'c:\\Users\\Sadique\\Desktop\\ai model\\churnaizer\\models\\one_hot_encoder.pkl' # Assuming OHE is saved separately
+    MODEL_PATH = 'c:\\Users\\Sadique\\Desktop\\ai model\\churnaizer\\models\\churn_prediction_pipeline.joblib' # Updated to pipeline path
+    # PREPROCESSOR_PATH = 'c:\\Users\\Sadique\\Desktop\\ai model\\churnaizer\\models\\one_hot_encoder.pkl' # Removed
     OUTPUT_REPORT_PATH = 'c:\\Users\\Sadique\\Desktop\\ai model\\churnaizer\\evaluation_report.txt'
     
     # These should match the features used during training
@@ -127,7 +119,7 @@ if __name__ == "__main__":
     evaluate_model(
         data_path=DATA_PATH,
         model_path=MODEL_PATH,
-        preprocessor_path=PREPROCESSOR_PATH,
+        # preprocessor_path=PREPROCESSOR_PATH, # Removed
         categorical_features=CATEGORICAL_FEATURES,
         target_column=TARGET_COLUMN,
         output_report_path=OUTPUT_REPORT_PATH
