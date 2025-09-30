@@ -1,7 +1,20 @@
 import gradio as gr
+import pandas as pd
+import joblib
 
-def greet(name):
-    return "Hello " + name + "!!"
+# Load the model (assuming it's in the same directory)
+model = joblib.load("churn_model.pkl")
 
-demo = gr.Interface(fn=greet, inputs="text", outputs="text")
-demo.launch()
+def predict_churn(csv_file):
+    df = pd.read_csv(csv_file.name)
+    preds = model.predict(df)  # adjust preprocessing if needed
+    df["churn_prediction"] = preds
+    return df
+
+iface = gr.Interface(
+    fn=predict_churn,
+    inputs=gr.File(label="Upload CSV"),
+    outputs=gr.Dataframe(label="Predictions")
+)
+
+iface.launch()
