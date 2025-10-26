@@ -88,6 +88,9 @@ if xgb_model and 'original_df' in st.session_state:
         shap_df = pd.get_dummies(shap_df, columns=['plan_type'], drop_first=True)
     if 'payment_status' in shap_df.columns:
         shap_df = pd.get_dummies(shap_df, columns=['payment_status'], drop_first=True)
+    # Convert signup_date to numerical (Unix timestamp) if it exists for SHAP
+    if 'signup_date' in shap_df.columns:
+        shap_df['signup_date'] = pd.to_datetime(shap_df['signup_date']).astype(int) / 10**9
 
     # Define the exact feature columns and their order as used in model training
     feature_columns = xgb_model.feature_names_in_

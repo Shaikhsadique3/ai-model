@@ -32,6 +32,10 @@ def preprocess_data(df):
     # Handle categorical features
     df = pd.get_dummies(df, columns=['plan_type', 'payment_status'], drop_first=True)
     
+    # Convert signup_date to numerical timestamp
+    if 'signup_date' in df.columns:
+        df['signup_date'] = pd.to_datetime(df['signup_date']).astype(int) / 10**9 # Convert to Unix timestamp
+    
     # Define features (X) and target (y)
     X = df.drop('churned', axis=1)
     y = df['churned']

@@ -68,10 +68,14 @@ if df is not None:
 
     df_encoded = pd.get_dummies(df, columns=categorical_features, drop_first=True)
 
+    # Convert signup_date to numerical timestamp if present
+    if 'signup_date' in df_encoded.columns:
+        df_encoded['signup_date'] = pd.to_datetime(df_encoded['signup_date']).astype(int) / 10**9 # Convert to Unix timestamp
+
     # Ensure all expected columns from training are present, add missing ones with 0
     expected_columns = ['monthly_revenue', 'days_since_signup', 'last_login_days_ago',
                         'logins_last30days', 'active_features_used', 'tickets_opened',
-                        'NPS_score', 'plan_type_Enterprise', 'plan_type_Free',
+                        'NPS_score', 'signup_date', 'plan_type_Enterprise', 'plan_type_Free',
                         'plan_type_Pro', 'payment_status_Late', 'payment_status_On-time']
 
     for col in expected_columns:
