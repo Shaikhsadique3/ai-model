@@ -202,3 +202,4 @@ plan_type_Pro               int64
 payment_status_Late         int64
 payment_status_On-time       bool
 dtype: object
+2025-10-26 14:44:46,884 - ERROR - Error loading models: 123

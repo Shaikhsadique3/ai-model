@@ -1,8 +1,7 @@
 streamlit
 pandas
-joblib
+joblib==1.2.0
 plotly
 shap
 numpy
-xgboost
-scikit-learn
+xgboost==1.7.5

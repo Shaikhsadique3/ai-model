@@ -65,7 +65,10 @@ def train_and_evaluate_model(model, X_train, y_train, X_test, y_test, model_name
 def save_model(model, path, model_name):
     logger.info(f"Saving {model_name} to {path}")
     try:
-        joblib.dump(model, path)
+        if model_name == "XGBoost Model":
+            model.save_model(path)
+        else:
+            joblib.dump(model, path)
         logger.info(f"{model_name} saved successfully.")
     except Exception as e:
         logger.error(f"Error saving {model_name}: {e}")
