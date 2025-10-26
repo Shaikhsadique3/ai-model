@@ -1,161 +1,172 @@
-# AI Churn Prediction Model
+# Churn Prediction Streamlit App
 
-This repository contains a machine learning model for predicting customer churn and a FastAPI application to serve these predictions.
+This repository contains a Streamlit application for churn prediction using two machine learning models: XGBoost and Random Forest.
 
-## Project Structure
+## Table of Contents
 
-```
-.
-├── backend/
-│   ├── main.py                     # FastAPI application entry point
-│   ├── model/                      # Churn prediction model service
-│   │   └── predict_model.py
-│   ├── processing/                 # CSV processing utilities for the API
-│   │   └── process_csv.py
-│   ├── report/                     # Report generation utilities for the API
-│   │   └── report_generator.py
-│   └── requirements.txt            # Backend specific dependencies
-├── config/
-│   └── config.ini                  # Configuration file
-├── data/                           # Directory for raw and processed data
-├── model/                          # Core model training and evaluation scripts
-│   ├── predict_model.py
-│   └── train_model.py
-├── models/                         # Directory to store trained model artifacts
-├── processing/                     # Core data processing and feature engineering scripts
-│   ├── evaluate.py
-│   ├── feature_engineering.py
-│   ├── generate_dummy_data.py
-│   ├── preprocessing.py
-│   ├── recommendation_engine.py
-│   ├── reporting_engine.py
-│   └── root_cause_analysis.py
-├── report/                         # Core report generation and analysis scripts
-│   ├── report_generator.py
-│   └── technical_report.md
-├── requirements.txt                # Project-wide Python dependencies
-├── tests/                          # Unit and integration tests
-│   └── test_model.py
-├── .gitignore                      # Git ignore file
-├── Makefile                        # Makefile for common commands
-├── README.md                       # Project README file
-└── churnaizer_colab.py             # Colab notebook for Churnaizer
-```
+- [Features](#features)
+- [Setup](#setup)
+- [Usage](#usage)
+- [Models](#models)
+- [File Structure](#file-structure)
+- [Maintenance](#maintenance)
 
-## Setup and Installation
+## Features
 
-This project uses Python 3.9+. It is recommended to use a virtual environment.
+- Upload CSV files for churn prediction.
+- Utilizes pre-trained XGBoost and Random Forest models.
+- Displays churn predictions and probabilities for each entry in the uploaded dataset.
 
-1.  **Clone the repository:**
+## Setup
+
+Follow these steps to set up and run the application locally:
+
+1.  **Clone the repository (if you haven't already):**
+
     ```bash
     git clone <repository_url>
-    cd ai-churn-prediction-model
+    cd <repository_name>
     ```
 
 2.  **Create a virtual environment (recommended):**
+
     ```bash
     python -m venv venv
     ```
+
+3.  **Activate the virtual environment:**
+
     -   **On Windows:**
+
         ```bash
         .\venv\Scripts\activate
         ```
+
     -   **On macOS/Linux:**
+
         ```bash
         source venv/bin/activate
         ```
 
-3.  **Install dependencies:**
-    Install core project dependencies:
+4.  **Install the required dependencies:**
+
     ```bash
     pip install -r requirements.txt
-    ```
-    Install backend-specific dependencies:
-    ```bash
-    pip install -r backend/requirements.txt
     ```
 
 ## Usage
 
-### 1. FastAPI Churn Audit Service
+1.  **Run the Streamlit application:**
 
-The primary way to interact with the churn prediction model is through the FastAPI service. Ensure the backend dependencies are installed (`pip install -r backend/requirements.txt`).
-
-To run the FastAPI application:
-```bash
-python backend/main.py
-```
-
-The API will be available at `http://127.0.0.1:8000`.
-
-#### API Documentation
-
-Once the FastAPI service is running, you can access the interactive API documentation (Swagger UI) at:
-
-*   `http://127.0.0.1:8000/docs`
-
-Or the alternative ReDoc documentation at:
-
-*   `http://127.0.0.1:8000/redoc`
-
-These interfaces provide detailed information about each endpoint, including expected parameters, response formats, and the ability to test the API directly.
-
-#### Key Endpoints:
-
-*   **`/upload` (POST):** Upload a CSV file for churn prediction. Returns a `file_id` to track processing.
-*   **`/status/{file_id}` (GET):** Get the current processing status of an uploaded file.
-*   **`/predictions/{file_id}` (GET):** Retrieve detailed churn prediction results.
-*   **`/download-report/{file_id}` (GET):** Download the generated PDF churn report.
-*   **`/sample-csv` (GET):** Download a sample CSV file template.
-
-### 2. Model Training (Standalone)
-
-To train the churn prediction model independently:
-
-```bash
-python model/train_model.py
-```
-This script will train the model using the data in the `data/` directory and save the trained model artifacts to the `models/` directory.
-
-### 3. Data Processing (Standalone)
-
-To generate dummy data or process your own CSV files outside the API:
-
-*   **Generate Dummy Data:**
     ```bash
-    python processing/generate_dummy_data.py
+    streamlit run app.py
     ```
 
-*   **Process CSV Data (Note: This is primarily used internally by the API now, but can be run standalone):**
-    ```bash
-    python processing/process_csv.py <path_to_your_raw_csv.csv> <path_for_processed_output.csv>
-    ```
+2.  **Open your web browser** and navigate to the URL provided by Streamlit (usually `http://localhost:8501`).
 
-### 4. Model Evaluation (Standalone)
+3.  **Upload a CSV file** containing your customer data. The application will then display the churn predictions and probabilities.
 
-To evaluate the trained model:
+## Models
 
-```bash
-python processing/evaluate.py
+This application uses two pre-trained models:
+
+-   `churnaizer_saas_model.pkl`: An XGBoost model for churn prediction.
+-   `churnaizer_model.pkl`: A Random Forest model for churn prediction.
+
+**Important Note on Model Compatibility:**
+
+There is a known issue with loading the pre-trained models (`.pkl` files) due to potential version incompatibilities with `joblib` and `scikit-learn`. If you encounter a `KeyError: 239` or similar issues during model loading, it indicates that the models were likely saved with a different version of these libraries than what is currently installed. 
+
+To resolve this, you will need to:
+
+1.  **Retrain the models** using the versions of `joblib` and `scikit-learn` specified in `requirements.txt`.
+2.  **Save the retrained models** in the `.pkl` format, ensuring they are compatible with the current environment.
+
+These models should be present in the same directory as `app.py`.
+
+## File Structure
+
 ```
-This script will evaluate the model's performance and output metrics.
-
-### 5. Running Tests
-
-To run the tests for the project:
-
-```bash
-python -m pytest tests/
+. \
+├── README.md
+├── app.py
+├── churnaizer_model.pkl
+├── churnaizer_saas_model.pkl
+└── requirements.txt
 ```
 
-## Best Practices
+## Model Details and Specifications
 
-*   **Virtual Environments:** Always use a virtual environment to manage project dependencies.
-*   **Dependency Management:** Keep `requirements.txt` and `backend/requirements.txt` up-to-date with all project dependencies.
-*   **Version Control:** Use `.gitignore` to exclude temporary files, logs, large datasets, and sensitive information from version control.
-*   **Code Clarity:** Write clear, concise, and well-commented code. Include docstrings for all functions, classes, and modules.
-*   **Coding Standards:** Adhere to consistent coding standards (e.g., PEP 8 for Python) throughout the codebase.
-*   **Modularity:** Design components with modularity and separation of concerns in mind to enhance scalability and maintainability.
-*   **Testing:** Write unit and integration tests for critical components to ensure reliability and prevent regressions.
-*   **Security:** Follow security best practices for data handling, storage, and API authentication.
-*   **Documentation:** Ensure all documentation (inline comments, docstrings, README) is synchronized with code changes and provides comprehensive explanations.
+### Training Process
+The models were trained using the `churn_training_data.csv` dataset. The process involved:
+1.  **Data Loading**: The CSV data was loaded into a Pandas DataFrame.
+2.  **Preprocessing**: Categorical features (`plan_type`, `payment_status`) were one-hot encoded using `pd.get_dummies`.
+3.  **Data Splitting**: The dataset was split into training and testing sets with an 80/20 ratio, using `random_state=42` for reproducibility and `stratify=y` to maintain the class distribution in both sets.
+4.  **Model Training**: Both XGBoost (`XGBClassifier`) and RandomForest (`RandomForestClassifier`) models were trained on the preprocessed training data.
+5.  **Model Evaluation**: The trained models were evaluated on the test set using accuracy, precision, recall, and F1-score.
+6.  **Model Saving**: The trained models were saved as `.pkl` files (`churnaizer_model.pkl` for XGBoost and `churnaizer_saas_model.pkl` for RandomForest) in the `model/` directory using `joblib`.
+
+### Performance Metrics
+The following performance metrics were observed on the test set:
+
+**XGBoost Model**:
+-   **Accuracy**: 0.9153
+-   **Precision**: 0.8335
+-   **Recall**: 0.8240
+-   **F1-Score**: 0.8287
+
+**RandomForest Model**:
+-   **Accuracy**: 0.9177
+-   **Precision**: 0.8418
+-   **Recall**: 0.8242
+-   **F1-Score**: 0.8329
+
+### Validation Methodology
+A standard 80/20 train-test split was used for model validation. The `random_state` was set to 42 to ensure reproducibility of the split, and `stratify=y` was applied to maintain the proportion of the target variable (`churned`) in both the training and testing sets, which is crucial for imbalanced datasets.
+
+### Input Data Requirements
+The application expects a CSV file as input. The columns in this CSV file should match the features used during the training of the churn prediction models. The specific feature names and their data types are crucial for accurate predictions. Based on `churn_training_data.csv`, the expected columns are:
+-   `plan_type`: Categorical (e.g., 'Basic', 'Enterprise', 'Pro', 'Free')
+-   `monthly_revenue`: Numerical
+-   `payment_status`: Categorical (e.g., 'On-time', 'Late', 'Failed')
+-   `days_since_signup`: Numerical
+-   `last_login_days_ago`: Numerical
+-   `logins_last30days`: Numerical
+-   `active_features_used`: Numerical
+-   `tickets_opened`: Numerical
+-   `NPS_score`: Numerical
+
+### Output Data Format
+Upon successful prediction, the application will output the original DataFrame with the following additional columns:
+- `churn_prediction_xgb`: Binary prediction (0 or 1) from the XGBoost model, indicating whether a customer is predicted to churn.
+- `churn_probability_xgb`: Probability of churn from the XGBoost model (a value between 0 and 1).
+- `churn_prediction_rf`: Binary prediction (0 or 1) from the RandomForest model, indicating whether a customer is predicted to churn.
+- `churn_probability_rf`: Probability of churn from the RandomForest model (a value between 0 and 1).
+
+
+## Maintenance
+
+-   **Updating Dependencies:** If new libraries are added or existing ones are updated, make sure to update `requirements.txt` accordingly.
+-   **Model Retraining:** When new models are trained, replace the `.pkl` files in the root directory with the updated models.
+-   **Troubleshooting:** Check the terminal for any error messages if the application is not behaving as expected.
+
+
+## Deployment on Streamlit Cloud
+
+To deploy this application on Streamlit Cloud, follow these steps:
+
+1.  **Ensure `requirements.txt` is up-to-date:** Make sure your `requirements.txt` file (located in the root directory) lists all the Python libraries your application depends on. This is crucial for Streamlit Cloud to install the correct environment.
+
+2.  **Push your code to a GitHub repository:** Streamlit Cloud deploys directly from GitHub. Ensure your entire project, including `app.py`, `pages/`, `model/`, `requirements.txt`, and any data files, is pushed to a public or private GitHub repository.
+
+3.  **Go to Streamlit Cloud:** Navigate to [share.streamlit.io](https://share.streamlit.io/) and log in with your GitHub account.
+
+4.  **Deploy a new app:** Click on the "New app" button.
+
+5.  **Connect your repository:** Select your GitHub repository, the branch you want to deploy from (e.g., `main` or `master`), and set the main file path to `app.py`.
+
+6.  **Advanced settings (if needed):** If your application requires specific Python versions or other environment variables, you can configure these in the "Advanced settings" section.
+
+7.  **Deploy!** Click the "Deploy!" button. Streamlit Cloud will then build your application, install dependencies, and deploy it. This might take a few minutes.
+
+8.  **Monitor deployment:** You can monitor the deployment process and view logs directly on the Streamlit Cloud interface. If there are any issues, the logs will provide details for troubleshooting.

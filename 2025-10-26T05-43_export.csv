@@ -1,0 +1,6 @@
+﻿,customer_id,monthly_revenue,days_since_signup,last_login_days_ago,logins_last30days,active_features_used,tickets_opened,NPS_score,plan_type,payment_status,churn_prediction_xgb,churn_probability_xgb,churn_prediction_rf,churn_probability_rf
+0,1,50,300,5,10,3,1,8,Pro,On-time,0,0.00012688686547335237,0,0
+1,2,75,150,2,15,5,0,9,Enterprise,On-time,0,0.00011378933413652703,0,0
+2,3,25,600,10,5,1,2,6,Free,Late,0,0.42494773864746094,1,0.55
+3,4,100,90,1,20,7,0,10,Pro,On-time,0,0.00011765256203943864,0,0
+4,5,60,450,7,8,2,1,7,Free,On-time,0,0.0007808792870491743,0,0

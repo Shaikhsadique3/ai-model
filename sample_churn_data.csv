@@ -1,0 +1,6 @@
+customer_id,monthly_revenue,days_since_signup,last_login_days_ago,logins_last30days,active_features_used,tickets_opened,NPS_score,plan_type,payment_status
+1,50.0,300,5,10,3,1,8,Pro,On-time
+2,75.0,150,2,15,5,0,9,Enterprise,On-time
+3,25.0,600,10,5,1,2,6,Free,Late
+4,100.0,90,1,20,7,0,10,Pro,On-time
+5,60.0,450,7,8,2,1,7,Free,On-time
