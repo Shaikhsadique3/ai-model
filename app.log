@@ -203,3 +203,28 @@ payment_status_Late         int64
 payment_status_On-time       bool
 dtype: object
 2025-10-26 14:44:46,884 - ERROR - Error loading models: 123
+2025-10-27 12:24:40,722 - ERROR - Error loading models: pop from empty list
+2025-10-27 12:26:55,051 - ERROR - Error loading models: pop from empty list
+2025-10-27 12:29:44,086 - INFO - Models loaded successfully.
+2025-10-27 12:29:49,314 - INFO - Predictions made and displayed.
+2025-10-27 12:29:49,632 - INFO - Feature importances displayed.
+2025-10-27 12:30:28,493 - INFO - Models loaded successfully.
+2025-10-27 12:30:32,836 - INFO - Predictions made and displayed.
+2025-10-27 12:30:33,039 - INFO - Feature importances displayed.
+2025-10-27 12:31:26,836 - INFO - Models loaded successfully.
+2025-10-27 12:31:31,112 - INFO - Predictions made and displayed.
+2025-10-27 12:31:31,303 - INFO - Feature importances displayed.
+2025-10-27 12:31:34,381 - INFO - Data types of X before SHAP: monthly_revenue             int64
+days_since_signup           int64
+last_login_days_ago         int64
+logins_last30days           int64
+active_features_used        int64
+tickets_opened              int64
+NPS_score                   int64
+signup_date               float64
+plan_type_Enterprise        int64
+plan_type_Free               bool
+plan_type_Pro               int64
+payment_status_Late         int64
+payment_status_On-time       bool
+dtype: object

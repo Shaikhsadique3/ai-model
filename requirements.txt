@@ -5,3 +5,4 @@ plotly
 shap
 numpy
 xgboost==1.7.5
+scikit-learn==1.7.2

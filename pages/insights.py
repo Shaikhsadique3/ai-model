@@ -17,16 +17,11 @@ st.write("Explore key metrics and visualizations related to customer churn.")
 # Load models
 @st.cache_resource
 def load_model(model_path, model_type):
-    if model_type == "xgboost":
-        model = xgb.Booster()
-        model.load_model(model_path)
-        return model
-    else:
-        return joblib.load(model_path)
+    return joblib.load(model_path)
 
 try:
     xgb_model = load_model('model/churnaizer_model.pkl', 'xgboost')
-rf_model = load_model('model/churnaizer_saas_model.pkl', 'randomforest')
+    rf_model = load_model('model/churnaizer_saas_model.pkl', 'randomforest')
 except FileNotFoundError:
     st.error("Error: Model files (xgb_model.joblib or rf_model.joblib) not found. Please ensure they are in the root directory.")
     st.stop()

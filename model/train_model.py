@@ -66,7 +66,7 @@ def save_model(model, path, model_name):
     logger.info(f"Saving {model_name} to {path}")
     try:
         if model_name == "XGBoost Model":
-            model.save_model(path)
+            joblib.dump(model, path)
         else:
             joblib.dump(model, path)
         logger.info(f"{model_name} saved successfully.")
